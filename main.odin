@@ -40,45 +40,44 @@ main :: proc() {
     if avformat.open_input(&formatCtx, "demo.mp4", nil, nil) < 0 {
         log.fatalf("failed to open demo.mp4")
     }
-    log.info("loaded!")
 
-    //    log.info("loaded SDL Video")
-    //
-    //    //    imageInitFlags := sdlimg.INIT_PNG
-    //    //    imageInitRes := sdlimg.InitFlags(sdlimg.Init(imageInitFlags))
-    //    //    if imageInitFlags != imageInitRes {
-    //    //        log.panicf("failed to init SDL2 image: expected: %v - got: %v", imageInitFlags, imageInitRes)
-    //    //    }
-    //    //    log.info("loaded SDL Image")
-    //
-    //    window := sdl2.CreateWindow(
-    //        "Odin Video PLayer",
-    //        sdl2.WINDOWPOS_UNDEFINED,
-    //        sdl2.WINDOWPOS_UNDEFINED,
-    //        WindowWidth,
-    //        WindowHeight,
-    //        {},
-    //    )
-    //    assert(window != nil)
-    //
-    //    renderer := sdl2.CreateRenderer(
-    //        window,
-    //        -1,
-    //        sdl2.RENDERER_ACCELERATED | sdl2.RENDERER_PRESENTVSYNC | sdl2.RENDERER_TARGETTEXTURE,
-    //    )
-    //    assert(renderer != nil)
-    //
-    //    app := App {
-    //        window   = window,
-    //        renderer = renderer,
-    //    }
-    //    defer closeApp(app)
-    //
-    //    for !app.shouldClose {
-    //        process_input(&app)
-    //        update(&app)
-    //        draw(&app)
-    //    }
+    log.info("loaded SDL Video")
+
+    imageInitFlags := sdlimg.INIT_PNG
+    imageInitRes := sdlimg.InitFlags(sdlimg.Init(imageInitFlags))
+    if imageInitFlags != imageInitRes {
+        log.panicf("failed to init SDL2 image: expected: %v - got: %v", imageInitFlags, imageInitRes)
+    }
+    log.info("loaded SDL Image")
+
+    window := sdl2.CreateWindow(
+        "Odin Video PLayer",
+        sdl2.WINDOWPOS_UNDEFINED,
+        sdl2.WINDOWPOS_UNDEFINED,
+        WindowWidth,
+        WindowHeight,
+        {},
+    )
+    assert(window != nil)
+
+    renderer := sdl2.CreateRenderer(
+        window,
+        -1,
+        sdl2.RENDERER_ACCELERATED | sdl2.RENDERER_PRESENTVSYNC | sdl2.RENDERER_TARGETTEXTURE,
+    )
+    assert(renderer != nil)
+
+    app := App {
+        window   = window,
+        renderer = renderer,
+    }
+    defer closeApp(app)
+
+    for !app.shouldClose {
+        process_input(&app)
+        update(&app)
+        draw(&app)
+    }
 }
 
 process_input :: proc(app: ^App) {

@@ -8,12 +8,12 @@
 */
 package ffmpeg_avcodec
 
+import "../types"
 import "core:c"
-import "ffmpeg:types"
 
 when ODIN_OS == .Windows {foreign import avcodec "avcodec.lib"}
 when ODIN_OS == .Linux {foreign import avcodec "system:libavcodec"}
-when ODIN_OS == .Darwin {foreign import avcodec "libavcodec.a"}
+when ODIN_OS == .Darwin {foreign import avcodec "system:libavcodec"}
 
 /*
 	Globals.

@@ -1,7 +1,7 @@
 package ffmpeg_avutil
 
+import "../types"
 import "core:fmt"
-import "ffmpeg:types"
 
 
 q2d :: proc(r: types.Rational) -> f64 {
