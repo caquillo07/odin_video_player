@@ -4,8 +4,8 @@ import "core:fmt"
 import "core:log"
 import "core:os"
 
-import avformat "./vendors/odin-ffmpeg-bindings/avformat"
-import fftypes "./vendors/odin-ffmpeg-bindings/types"
+import avformat "./vendors/odin-ffmpeg/avformat"
+import fftypes "./vendors/odin-ffmpeg/types"
 
 import sdl2 "vendor:sdl2"
 import sdlimg "vendor:sdl2/image"
