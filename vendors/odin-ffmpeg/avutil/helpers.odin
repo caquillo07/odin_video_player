@@ -4,7 +4,7 @@ import "../types"
 import "core:fmt"
 
 
-q2d :: proc(r: types.Rational) -> f64 {
+q2d :: proc(r: types.AVRational) -> f64 {
     return cast(f64)r.numerator / cast(f64)r.denominator
 }
 

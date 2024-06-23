@@ -116,7 +116,7 @@ foreign swscale {
     convertPalette8ToPacked24 :: proc(src: [^]u8, dst: [^]u8, num_pixels: i32, palette: [^]u8) ---
 
     // Gets the AVClass for Sws_Context
-    get_class :: proc() -> ^types.Class ---
+    get_class :: proc() -> ^types.AVClass ---
 
 }
 

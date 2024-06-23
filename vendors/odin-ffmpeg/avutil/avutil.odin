@@ -196,7 +196,7 @@ foreign avutil {
     util_license :: proc() -> cstring ---
 
     // Returns a string describing the media_type enum.
-    get_media_type_string :: proc(media_type: types.Media_Type) -> cstring ---
+    get_media_type_string :: proc(media_type: types.AVMediaType) -> cstring ---
 
     // Returns a single letter to describe the given picture type.
     get_picture_type_char :: proc(pict_type: types.Picture_Type) -> byte ---
@@ -205,7 +205,7 @@ foreign avutil {
     int_list_length_for_size :: proc(elsize: u32, list: rawptr, term: u64) -> u32 ---
 
     // Returns the fractional representation of the internal time base.
-    get_time_base_q :: proc() -> types.Rational ---
+    get_time_base_q :: proc() -> types.AVRational ---
 
     // Fills the provided buffer with a string containing a FourCC (four-character code) representation.
     fourcc_make_string :: proc(buf: cstring, fourcc: types.FourCC) -> cstring ---
@@ -445,28 +445,28 @@ foreign avutil {
 
     //===dict.h===
     // Gets a dictionary entry with matching key.
-    dict_get :: proc(m: ^types.Dictionary, key: cstring, prev: ^types.Dictionary_Entry, flags: types.Dictionary_Flags) -> ^types.Dictionary_Entry ---
+    dict_get :: proc(m: ^types.AVDictionary, key: cstring, prev: ^types.Dictionary_Entry, flags: types.Dictionary_Flags) -> ^types.Dictionary_Entry ---
 
     // Gets number of entries in dictionary.
-    dict_count :: proc(m: ^types.Dictionary) -> i32 ---
+    dict_count :: proc(m: ^types.AVDictionary) -> i32 ---
 
     // Sets the given entry in *pm, overwriting an existing entry.
-    dict_set :: proc(pm: ^^types.Dictionary, key: cstring, value: cstring, flags: types.Dictionary_Flags) -> i32 ---
+    dict_set :: proc(pm: ^^types.AVDictionary, key: cstring, value: cstring, flags: types.Dictionary_Flags) -> i32 ---
 
     // Convenience wrapper for dict_set that converts the value to a string and stores it.
-    dict_set_int :: proc(pm: ^^types.Dictionary, key: cstring, value: i64, flags: types.Dictionary_Flags) -> i32 ---
+    dict_set_int :: proc(pm: ^^types.AVDictionary, key: cstring, value: i64, flags: types.Dictionary_Flags) -> i32 ---
 
     // Parses the key/value pairs list and adds the parsed entries to a dictionary.
-    dict_parse_string :: proc(pm: ^^types.Dictionary, str: cstring, key_val_sep: cstring, pairs_sep: cstring, flags: types.Dictionary_Flags) -> i32 ---
+    dict_parse_string :: proc(pm: ^^types.AVDictionary, str: cstring, key_val_sep: cstring, pairs_sep: cstring, flags: types.Dictionary_Flags) -> i32 ---
 
     // Copies entries from one Dictionary struct into another.
-    dict_copy :: proc(dst: ^^types.Dictionary, src: ^types.Dictionary, flags: types.Dictionary_Flags) -> i32 ---
+    dict_copy :: proc(dst: ^^types.AVDictionary, src: ^types.AVDictionary, flags: types.Dictionary_Flags) -> i32 ---
 
     // Frees all the memory allocated for a Dictionary struct and all keys and values.
-    dict_free :: proc(m: ^^types.Dictionary) ---
+    dict_free :: proc(m: ^^types.AVDictionary) ---
 
     // Gets dictionary entries as a string.
-    dict_get_string :: proc(m: ^types.Dictionary, buffer: ^cstring, key_val_sep: byte, pairs_sep: byte) -> i32 ---
+    dict_get_string :: proc(m: ^types.AVDictionary, buffer: ^cstring, key_val_sep: byte, pairs_sep: byte) -> i32 ---
 
 
     //===display.h===
@@ -779,13 +779,13 @@ foreign avutil {
     hwdevice_ctx_init :: proc(ref: ^types.Buffer_Ref) -> i32 ---
 
     // Opens a device of the specified type and creates an HWDeviceContext for it.
-    hwdevice_ctx_create :: proc(device_ctx: ^^types.Buffer_Ref, type: types.Hardware_Device_Type, device: cstring, opts: ^types.Dictionary, flags: i32) -> i32 ---
+    hwdevice_ctx_create :: proc(device_ctx: ^^types.Buffer_Ref, type: types.Hardware_Device_Type, device: cstring, opts: ^types.AVDictionary, flags: i32) -> i32 ---
 
     // Creates a new device of the specified type from an existing device.
     hwdevice_ctx_create_derived :: proc(dst_ctx: ^^types.Buffer_Ref, type: types.Hardware_Device_Type, src_ctx: ^types.Buffer_Ref, flags: i32) -> i32 ---
 
     // Creates a new device of the specified type from an existing device.
-    hwdevice_ctx_create_derived_opts :: proc(dst_ctx: ^^types.Buffer_Ref, type: types.Hardware_Device_Type, src_ctx: ^types.Buffer_Ref, options: ^types.Dictionary, flags: i32) -> i32 ---
+    hwdevice_ctx_create_derived_opts :: proc(dst_ctx: ^^types.Buffer_Ref, type: types.Hardware_Device_Type, src_ctx: ^types.Buffer_Ref, options: ^types.AVDictionary, flags: i32) -> i32 ---
 
     // Allocates an HWFramesContext tied to a given device context.
     hwframe_ctx_alloc :: proc(device_ctx: ^types.Buffer_Ref) -> ^types.Buffer_Ref ---
@@ -869,7 +869,7 @@ foreign avutil {
     image_check_size2 :: proc(w: u32, h: u32, max_pixels: i64, pix_fmt: types.Pixel_Format, log_offset: i32, log_ctx: rawptr) -> i32 ---
 
     // Checks if the given sample aspect ratio of an image is valid.
-    image_check_sar :: proc(w: u32, h: u32, sar: types.Rational) -> i32 ---
+    image_check_sar :: proc(w: u32, h: u32, sar: types.AVRational) -> i32 ---
 
     // Overwrites the image data with black.
     image_fill_black :: proc(dst_data: [4][^]u8, dst_linesize: [4]ptrdiff_t, pix_fmt: types.Pixel_Format, range: types.Color_Range, width: i32, height: i32) -> i32 ---
@@ -944,20 +944,20 @@ foreign avutil {
     // Rescales a 64-bit integer with rounding to nearest.
     rescale :: proc(a: i64, b: i64, c: i64) -> i64 ---
     rescale_rnd :: proc(a: i64, b: i64, c: i64, rnd: types.Rounding) -> i64 ---
-    rescale_q :: proc(a: i64, bq: types.Rational, cq: types.Rational) -> i64 ---
-    rescale_q_rnd :: proc(a: i64, bq: types.Rational, cq: types.Rational, rnd: types.Rounding) -> i64 ---
+    rescale_q :: proc(a: i64, bq: types.AVRational, cq: types.AVRational) -> i64 ---
+    rescale_q_rnd :: proc(a: i64, bq: types.AVRational, cq: types.AVRational, rnd: types.Rounding) -> i64 ---
 
     // Compares two timestamps each in its own time base.
-    compare_ts :: proc(ts_a: i64, tb_a: types.Rational, ts_b: i64, tb_b: types.Rational) -> i32 ---
+    compare_ts :: proc(ts_a: i64, tb_a: types.AVRational, ts_b: i64, tb_b: types.AVRational) -> i32 ---
 
     // Compares the remainders of two integer operands divided by a common divisor.
     compare_mod :: proc(a: u64, b: u64, mod: u64) -> i64 ---
 
     // Rescales a timestamp while preserving known durations.
-    rescale_delta :: proc(in_tb: types.Rational, in_ts: i64, fs_tb: types.Rational, duration: i32, last: ^i64, out_tb: types.Rational) -> i64 ---
+    rescale_delta :: proc(in_tb: types.AVRational, in_ts: i64, fs_tb: types.AVRational, duration: i32, last: ^i64, out_tb: types.AVRational) -> i64 ---
 
     // Adds a value to a timestamp.
-    add_stable :: proc(ts_tb: types.Rational, ts: i64, inc_tb: types.Rational, inc: i64) -> i64 ---
+    add_stable :: proc(ts_tb: types.AVRational, ts: i64, inc_tb: types.AVRational, inc: i64) -> i64 ---
 
     // 0th order modified bessel function of the first kind.
     bessel_i0 :: proc(x: f64) -> f64 ---
@@ -1091,10 +1091,10 @@ foreign avutil {
     opt_flag_is_set :: proc(obj: rawptr, field_name: cstring, flag_name: cstring) -> i32 ---
 
     // Sets options from a dictionary on an object
-    opt_set_dict :: proc(obj: rawptr, options: ^types.Dictionary) -> i32 ---
+    opt_set_dict :: proc(obj: rawptr, options: ^types.AVDictionary) -> i32 ---
 
     // Sets options from a dictionary on an object with search flags
-    opt_set_dict2 :: proc(obj: rawptr, options: ^types.Dictionary, search_flags: i32) -> i32 ---
+    opt_set_dict2 :: proc(obj: rawptr, options: ^types.AVDictionary, search_flags: i32) -> i32 ---
 
     // Extracts a key-value pair from the beginning of a string
     opt_get_key_value :: proc(ropts: ^cstring, key_val_sep: cstring, pairs_sep: cstring, flags: u32, rkey: ^cstring, rval: ^cstring) -> i32 ---
@@ -1105,7 +1105,7 @@ foreign avutil {
     opt_eval_int64 :: proc(obj: rawptr, o: ^types.Option, val: cstring, int64_out: ^i64) -> i32 ---
     opt_eval_float :: proc(obj: rawptr, o: ^types.Option, val: cstring, float_out: ^f32) -> i32 ---
     opt_eval_double :: proc(obj: rawptr, o: ^types.Option, val: cstring, double_out: ^f64) -> i32 ---
-    opt_eval_q :: proc(obj: rawptr, o: ^types.Option, val: cstring, q_out: ^types.Rational) -> i32 ---
+    opt_eval_q :: proc(obj: rawptr, o: ^types.Option, val: cstring, q_out: ^types.AVRational) -> i32 ---
 
     // Looks for an option in an object
     opt_find :: proc(obj: rawptr, name: cstring, unit: cstring, opt_flags: types.Option_Flags, search_flags: i32) -> ^types.Option ---
@@ -1120,35 +1120,35 @@ foreign avutil {
     opt_child_next :: proc(obj: rawptr, prev: rawptr) -> rawptr ---
 
     // Iterates over potential AVOptions-enabled children of parent
-    opt_child_class_iterate :: proc(parent: ^types.Class, iter: ^rawptr) -> ^types.Class ---
+    opt_child_class_iterate :: proc(parent: ^types.AVClass, iter: ^rawptr) -> ^types.AVClass ---
 
     // Sets the field of obj with the given name to value
     opt_set :: proc(obj: rawptr, name: cstring, val: cstring, search_flags: i32) -> i32 ---
     opt_set_int :: proc(obj: rawptr, name: cstring, val: i64, search_flags: i32) -> i32 ---
     opt_set_double :: proc(obj: rawptr, name: cstring, val: f64, search_flags: i32) -> i32 ---
-    opt_set_q :: proc(obj: rawptr, name: cstring, val: types.Rational, search_flags: i32) -> i32 ---
+    opt_set_q :: proc(obj: rawptr, name: cstring, val: types.AVRational, search_flags: i32) -> i32 ---
     opt_set_bin :: proc(obj: rawptr, name: cstring, val: [^]u8, size: i32, search_flags: i32) -> i32 ---
     opt_set_image_size :: proc(obj: rawptr, name: cstring, w: i32, h: i32, search_flags: i32) -> i32 ---
     opt_set_pixel_fmt :: proc(obj: rawptr, name: cstring, fmt: types.Pixel_Format, search_flags: i32) -> i32 ---
     opt_set_sample_fmt :: proc(obj: rawptr, name: cstring, fmt: types.Sample_Format, search_flags: i32) -> i32 ---
-    opt_set_video_rate :: proc(obj: rawptr, name: cstring, val: types.Rational, search_flags: i32) -> i32 ---
+    opt_set_video_rate :: proc(obj: rawptr, name: cstring, val: types.AVRational, search_flags: i32) -> i32 ---
     opt_set_chlayout :: proc(obj: rawptr, name: cstring, ch_layout: ^types.Channel_Layout, search_flags: i32) -> i32 ---
-    opt_set_dict_val :: proc(obj: rawptr, name: cstring, val: ^types.Dictionary, search_flags: i32) -> i32 ---
+    opt_set_dict_val :: proc(obj: rawptr, name: cstring, val: ^types.AVDictionary, search_flags: i32) -> i32 ---
 
     // Gets a value of the option with the given name from an object
     opt_get :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^^u8) -> i32 ---
     opt_get_int :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^i64) -> i32 ---
     opt_get_double :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^f64) -> i32 ---
-    opt_get_q :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^types.Rational) -> i32 ---
+    opt_get_q :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^types.AVRational) -> i32 ---
     opt_get_image_size :: proc(obj: rawptr, name: cstring, search_flags: i32, w_out: ^i32, h_out: ^i32) -> i32 ---
     opt_get_pixel_fmt :: proc(obj: rawptr, name: cstring, search_flags: i32, out_fmt: ^types.Pixel_Format) -> i32 ---
     opt_get_sample_fmt :: proc(obj: rawptr, name: cstring, search_flags: i32, out_fmt: ^types.Sample_Format) -> i32 ---
-    opt_get_video_rate :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^types.Rational) -> i32 ---
+    opt_get_video_rate :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^types.AVRational) -> i32 ---
     opt_get_chlayout :: proc(obj: rawptr, name: cstring, search_flags: i32, ch_layout: ^types.Channel_Layout) -> i32 ---
-    opt_get_dict_val :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^^types.Dictionary) -> i32 ---
+    opt_get_dict_val :: proc(obj: rawptr, name: cstring, search_flags: i32, out_val: ^^types.AVDictionary) -> i32 ---
 
     // Gets a pointer to the requested field in a struct
-    opt_ptr :: proc(avclass: ^types.Class, obj: rawptr, name: cstring) -> rawptr ---
+    opt_ptr :: proc(avclass: ^types.AVClass, obj: rawptr, name: cstring) -> rawptr ---
 
     // Frees an OptionRanges struct and sets it to NULL
     opt_freep_ranges :: proc(ranges: ^^types.Option_Ranges) ---
@@ -1174,13 +1174,13 @@ foreign avutil {
 
     //===parseutils.h===
     // Parses str and stores the parsed ratio in q
-    parse_ratio :: proc(q: ^types.Rational, str: cstring, max: i32, log_offset: i32, log_ctx: rawptr) -> i32 ---
+    parse_ratio :: proc(q: ^types.AVRational, str: cstring, max: i32, log_offset: i32, log_ctx: rawptr) -> i32 ---
 
     // Parses str and puts in width_ptr and height_ptr the detected values
     parse_video_size :: proc(width_ptr: ^i32, height_ptr: ^i32, str: cstring) -> i32 ---
 
     // Parses str and stores the detected values in *rate
-    parse_video_rate :: proc(rate: ^types.Rational, str: cstring) -> i32 ---
+    parse_video_rate :: proc(rate: ^types.AVRational, str: cstring) -> i32 ---
 
     // Puts the RGBA values that correspond to color_string in rgba_color
     parse_color :: proc(rgba_color: ^u8, color_string: cstring, slen: i32, log_ctx: rawptr) -> i32 ---
@@ -1298,31 +1298,31 @@ foreign avutil {
     reduce :: proc(dst_num: ^i32, dst_den: ^i32, num: i64, den: i64, max: i64) -> i32 ---
 
     // Multiplies two rationals
-    mul_q :: proc(b: types.Rational, c: types.Rational) -> types.Rational ---
+    mul_q :: proc(b: types.AVRational, c: types.AVRational) -> types.AVRational ---
 
     // Divides one rational by another
-    div_q :: proc(b: types.Rational, c: types.Rational) -> types.Rational ---
+    div_q :: proc(b: types.AVRational, c: types.AVRational) -> types.AVRational ---
 
     // Adds two rationals
-    add_q :: proc(b: types.Rational, c: types.Rational) -> types.Rational ---
+    add_q :: proc(b: types.AVRational, c: types.AVRational) -> types.AVRational ---
 
     // Subtracts one rational from another
-    sub_q :: proc(b: types.Rational, c: types.Rational) -> types.Rational ---
+    sub_q :: proc(b: types.AVRational, c: types.AVRational) -> types.AVRational ---
 
     // Converts a double precision floating point number to a rational
-    d2q :: proc(d: f64, max: i32) -> types.Rational ---
+    d2q :: proc(d: f64, max: i32) -> types.AVRational ---
 
     // Finds which of the two rationals is closer to another rational
-    nearer_q :: proc(q: types.Rational, q1: types.Rational, q2: types.Rational) -> i32 ---
+    nearer_q :: proc(q: types.AVRational, q1: types.AVRational, q2: types.AVRational) -> i32 ---
 
     // Finds the value in a list of rationals nearest a given reference rational
-    find_nearest_q_idx :: proc(q: types.Rational, q_list: ^types.Rational) -> i32 ---
+    find_nearest_q_idx :: proc(q: types.AVRational, q_list: ^types.AVRational) -> i32 ---
 
     // Converts an AVRational to a IEEE 32-bit `float` expressed in fixed-point format
-    q2intfloat :: proc(q: types.Rational) -> u32 ---
+    q2intfloat :: proc(q: types.AVRational) -> u32 ---
 
     // Returns the best rational so that a and b are multiple of it
-    gcd_q :: proc(a: types.Rational, b: types.Rational, max_den: i32, def: types.Rational) -> types.Rational ---
+    gcd_q :: proc(a: types.AVRational, b: types.AVRational, max_den: i32, def: types.AVRational) -> types.AVRational ---
 
 
     //===rc4.h===
@@ -1508,13 +1508,13 @@ foreign avutil {
     timecode_get_smpte_from_framenum :: proc(tc: ^types.Timecode, framenum: i32) -> u32 ---
 
     // Converts sei info to SMPTE 12M binary representation
-    timecode_get_smpte :: proc(rate: types.Rational, drop: i32, hh: i32, mm: i32, ss: i32, ff: i32) -> u32 ---
+    timecode_get_smpte :: proc(rate: types.AVRational, drop: i32, hh: i32, mm: i32, ss: i32, ff: i32) -> u32 ---
 
     // Loads timecode string in buf
     timecode_make_string :: proc(tc: ^types.Timecode, buf: cstring, framenum: i32) -> cstring ---
 
     // Gets the timecode string from the SMPTE timecode format
-    timecode_make_smpte_tc_string2 :: proc(buf: cstring, rate: types.Rational, tcsmpte: u32, prevent_df: i32, skip_field: i32) -> cstring ---
+    timecode_make_smpte_tc_string2 :: proc(buf: cstring, rate: types.AVRational, tcsmpte: u32, prevent_df: i32, skip_field: i32) -> cstring ---
 
     // Gets the timecode string from the SMPTE timecode format
     timecode_make_smpte_tc_string :: proc(buf: cstring, tcsmpte: u32, prevent_df: i32) -> cstring ---
@@ -1523,16 +1523,16 @@ foreign avutil {
     timecode_make_mpeg_tc_string :: proc(buf: cstring, tc25bit: u32) -> cstring ---
 
     // Inits a timecode struct with the passed parameters
-    timecode_init :: proc(tc: ^types.Timecode, rate: types.Rational, flags: types.Timecode_Flags, frame_start: i32, log_ctx: rawptr) -> i32 ---
+    timecode_init :: proc(tc: ^types.Timecode, rate: types.AVRational, flags: types.Timecode_Flags, frame_start: i32, log_ctx: rawptr) -> i32 ---
 
     // Inits a timecode struct from the passed timecode components
-    timecode_init_from_components :: proc(tc: ^types.Timecode, rate: types.Rational, flags: types.Timecode_Flags, hh: i32, mm: i32, ss: i32, ff: i32, log_ctx: rawptr) -> i32 ---
+    timecode_init_from_components :: proc(tc: ^types.Timecode, rate: types.AVRational, flags: types.Timecode_Flags, hh: i32, mm: i32, ss: i32, ff: i32, log_ctx: rawptr) -> i32 ---
 
     // Parses timecode representation (hh:mm:ss[:;.]ff)
-    timecode_init_from_string :: proc(tc: ^types.Timecode, rate: types.Rational, str: cstring, log_ctx: rawptr) -> i32 ---
+    timecode_init_from_string :: proc(tc: ^types.Timecode, rate: types.AVRational, str: cstring, log_ctx: rawptr) -> i32 ---
 
     // Checks if the timecode feature is available for the given frame rate
-    timecode_check_frame_rate :: proc(rate: types.Rational) -> i32 ---
+    timecode_check_frame_rate :: proc(rate: types.AVRational) -> i32 ---
 
 
     //===tree.h===

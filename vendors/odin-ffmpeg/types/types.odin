@@ -101,7 +101,7 @@ Get_Codecs_Type :: enum i32 {
     Both    = 2,
 }
 
-Discard :: enum i32 {
+AVDiscard :: enum i32 {
     None          = -16,
     Default       = 0,
     Non_Reference = 8,
@@ -136,8 +136,8 @@ RC_Override :: struct {
 */
 Codec_Flag :: enum i32 {
     /*
-		FLAG_*
-	*/
+    FLAG_*
+*/
     Unaligned                    = 0,
     Q_Scale                      = 1,
     Four_MV                      = 2,
@@ -164,8 +164,8 @@ Codec_Flags :: bit_set[Codec_Flag;i32]
 
 Codec_Flag_2 :: enum i32 {
     /*
-		FLAG2_*
-	*/
+    FLAG2_*
+*/
     Fast                   = 0,
     Non_Compliant_Speedups = 0, //not present in avcodec.h??
     No_Output              = 2,
@@ -251,13 +251,13 @@ FourCC :: distinct [4]u8
 	AV Codec Tag
 */
 Codec_Tag :: struct {
-    id:  Codec_ID,
+    id:  AVCodecID,
     tag: FourCC,
 }
 
 Codec_Mime :: struct {
     str: [32]u8,
-    id:  Codec_ID,
+    id:  AVCodecID,
 }
 
 Get_Buffer_Flag_Ref :: 1 << 0
@@ -296,18 +296,18 @@ Not sure what I screwed up here...
 */
 Codec_HW_Config_Internal :: struct {}
 
-Codec :: struct {
+AVCodec :: struct {
     name:                  cstring,
     long_name:             cstring,
-    type:                  Media_Type,
-    id:                    Codec_ID,
+    type:                  AVMediaType,
+    id:                    AVCodecID,
     capabilities:          Codec_Capabilities,
     max_lowres:            u8,
-    supported_framerates:  [^]Rational, // Array of supported framerates,        or NULL if any framerate. Terminated by {0, 0}
+    supported_framerates:  [^]AVRational, // Array of supported framerates,        or NULL if any framerate. Terminated by {0, 0}
     pixel_formats:         [^]Pixel_Format, // Array of supported pixel formats,     or NULL if unknown.       Terminated by -1
     supported_samplerates: [^]i32, // Array of supported audio samplerates, or NULL if unknown.       Terminated by 0
     sample_formats:        [^]Sample_Format, // Array of supported sample formats,    or NULL if unknown.       Terminated by -1
-    priv_class:            ^Class,
+    priv_class:            ^AVClass,
     profiles:              [^]Profile, // Array of recognized profiles,         or NULL if unknown.        Terminated by .Profile_Unknown
     wrapper_name:          cstring,
     ch_layouts:            [^]Channel_Layout,
@@ -332,7 +332,7 @@ COMPRESSION_DEFAULT :: -1
 
 
 DCT :: struct {
-    class:                Class,
+    class:                AVClass,
 
     //void (*idct)(int16_t *block /* align 16 */);
     idct:                 proc(block: ^i16),
@@ -436,7 +436,7 @@ Error_Concealment_Flag :: enum i32 {
 }
 Error_Concealment_Flags :: bit_set[Error_Concealment_Flag;i32]
 
-Codec_Context_Debug_Flag :: enum i32 {
+CodecContextDebugFlag :: enum i32 {
     Pict_Info  = 0,
     RC         = 1,
     Bitstream  = 2,
@@ -453,15 +453,15 @@ Codec_Context_Debug_Flag :: enum i32 {
     Green_MD   = 23,
     NOMC       = 24,
 }
-Codec_Context_Debug_Flags :: bit_set[Codec_Context_Debug_Flag;i32]
+Codec_Context_Debug_Flags :: bit_set[CodecContextDebugFlag;i32]
 
 Error_Recognition_Flag :: enum i32 {
     /**
- * Verify checksums embedded in the bitstream (could be of either encoded or
- * decoded data, depending on the codec) and print an error message on mismatch.
- * If AV_EF_EXPLODE is also set, a mismatching checksum will result in the
- * decoder returning an error.
- */
+* Verify checksums embedded in the bitstream (could be of either encoded or
+* decoded data, depending on the codec) and print an error message on mismatch.
+* If AV_EF_EXPLODE is also set, a mismatching checksum will result in the
+* decoder returning an error.
+*/
     CRC_Check    = 0,
     Bitstream    = 1, ///< detect bitstream specification deviations
     Buffer       = 2, ///< detect improper bitstream length
@@ -634,13 +634,13 @@ Stream_Property_Flags :: bit_set[Stream_Property_Flag;i32]
 
 Hardware_Accelerator_Flag :: enum i32 {
     /**
-	 * Hardware acceleration should be used for decoding even if the codec level
-	 * used is unknown or higher than the maximum supported level reported by the
-	 * hardware driver.
-	 *
-	 * It's generally a good idea to pass this flag unless you have a specific
-	 * reason not to, as hardware tends to under-report supported levels.
-	 */
+ * Hardware acceleration should be used for decoding even if the codec level
+ * used is unknown or higher than the maximum supported level reported by the
+ * hardware driver.
+ *
+ * It's generally a good idea to pass this flag unless you have a specific
+ * reason not to, as hardware tends to under-report supported levels.
+ */
     Ignore_Level           = 0,
 
     /**
@@ -682,12 +682,12 @@ Hardware_Accelerator_Flags :: bit_set[Hardware_Accelerator_Flag;i32]
 
 Codec_Internal :: struct {}
 
-Codec_Context :: struct {
-    av_class:                      ^Class,
+AVCodec_Context :: struct {
+    av_class:                      ^AVClass,
     log_level_offset:              i32,
-    codec_type:                    Media_Type,
-    codec:                         ^Codec,
-    codec_id:                      Codec_ID,
+    codec_type:                    AVMediaType,
+    codec:                         ^AVCodec,
+    codec_id:                      AVCodecID,
     codec_tag:                     FourCC,
     priv_data:                     rawptr,
 
@@ -779,7 +779,7 @@ Codec_Context :: struct {
 	 * - decoding: the use of this field for decoding is deprecated.
 	 *             Use framerate instead.
 	 */
-    time_base:                     Rational,
+    time_base:                     AVRational,
 
 
     /**
@@ -885,7 +885,7 @@ Codec_Context :: struct {
 	 * @param offset offset into the AVFrame.data from which the slice should be read
 	 */
     draw_horiz_band:               #type proc(
-        ctx: ^Codec_Context,
+        ctx: ^AVCodec_Context,
         src: ^Frame,
         offset: [NUM_DATA_POINTERS]i32,
         y: i32,
@@ -906,7 +906,7 @@ Codec_Context :: struct {
 	 * - encoding: unused
 	 * - decoding: Set by user, if not set the native format will be chosen.
 	 */
-    get_format:                    #type proc(ctx: ^Codec_Context, fmt: ^Pixel_Format) -> Pixel_Format,
+    get_format:                    #type proc(ctx: ^AVCodec_Context, fmt: ^Pixel_Format) -> Pixel_Format,
 
     /**
 	 * maximum number of B-frames between non-B-frames
@@ -999,7 +999,7 @@ Codec_Context :: struct {
 	 * - encoding: Set by user.
 	 * - decoding: Set by libavcodec.
 	 */
-    sample_aspect_ratio:           Rational,
+    sample_aspect_ratio:           AVRational,
 
     /**
 	 * motion estimation comparison function
@@ -1348,7 +1348,7 @@ Codec_Context :: struct {
 	 * - encoding: unused
 	 * - decoding: Set by libavcodec, user can override.
 	 */
-    get_buffer2:                   #type proc(ctx: ^Codec_Context, frame: ^Frame, flags: i32) -> i32,
+    get_buffer2:                   #type proc(ctx: ^AVCodec_Context, frame: ^Frame, flags: i32) -> i32,
 
     /* - encoding parameters */
     qcompress:                     f32, ///< amount of qscale change between easy & hard scenes (0.0-1.0)
@@ -1599,8 +1599,8 @@ Codec_Context :: struct {
 	 * - decoding: Set by libavcodec, user can override.
 	 */
     execute:                       #type proc(
-        ctx: ^Codec_Context,
-        func: #type proc(ctx: ^Codec_Context, arg: rawptr) -> i32,
+        ctx: ^AVCodec_Context,
+        func: #type proc(ctx: ^AVCodec_Context, arg: rawptr) -> i32,
         arg: rawptr,
         ret: ^i32,
         count: i32,
@@ -1626,8 +1626,8 @@ Codec_Context :: struct {
 	 * - decoding: Set by libavcodec, user can override.
 	 */
     execute2:                      #type proc(
-        ctx: ^Codec_Context,
-        func: #type proc(ctx: ^Codec_Context, arg: rawptr, jobnr: i32, threadnr: i32) -> i32,
+        ctx: ^AVCodec_Context,
+        func: #type proc(ctx: ^AVCodec_Context, arg: rawptr, jobnr: i32, threadnr: i32) -> i32,
         arg: rawptr,
         ret: ^i32,
         count: i32,
@@ -1659,21 +1659,21 @@ Codec_Context :: struct {
 	 * - encoding: unused
 	 * - decoding: Set by user.
 	 */
-    skip_loop_filter:              Discard,
+    skip_loop_filter:              AVDiscard,
 
     /**
 	 * Skip IDCT/dequantization for selected frames.
 	 * - encoding: unused
 	 * - decoding: Set by user.
 	 */
-    skip_idct:                     Discard,
+    skip_idct:                     AVDiscard,
 
     /**
 	 * Skip decoding for selected frames.
 	 * - encoding: unused
 	 * - decoding: Set by user.
 	 */
-    skip_frame:                    Discard,
+    skip_frame:                    AVDiscard,
 
     /**
 	 * Header containing style information for text subtitles.
@@ -1710,7 +1710,7 @@ Codec_Context :: struct {
 	 * - encoding: May be used to signal the framerate of CFR content to an
 	 *             encoder.
 	 */
-    framerate:                     Rational,
+    framerate:                     AVRational,
 
     /**
 	 * Nominal unaccelerated pixel format, see xxx.
@@ -1724,7 +1724,7 @@ Codec_Context :: struct {
 	 * - encoding unused.
 	 * - decoding set by user.
 	 */
-    pkt_timebase:                  Rational,
+    pkt_timebase:                  AVRational,
 
     /**
 	 * AVCodecDescriptor
@@ -1815,7 +1815,7 @@ Codec_Context :: struct {
 	 * - decoding: unused
 	 * - encoding: may be set by libavcodec after avcodec_open2().
 	 */
-    coded_side_data:               [^]Packet_Side_Data,
+    coded_side_data:               [^]AVPacketSideData,
     nb_coded_side_data:            i32,
 
     /**
@@ -1996,7 +1996,7 @@ Codec_Context :: struct {
 	 * - encoding: Set by libavcodec, user can override.
 	 * - decoding: unused
 	 */
-    get_encode_buffer:             #type proc(ctx: ^Codec_Context, pkt: ^Packet, flags: i32) -> i32,
+    get_encode_buffer:             #type proc(ctx: ^AVCodec_Context, pkt: ^AVPacket, flags: i32) -> i32,
 
     /**
      * Audio channel layout.
@@ -2028,8 +2028,8 @@ Codec_Context :: struct {
  */
 Hardware_Accelerator :: struct {
     name:         cstring,
-    type:         Media_Type,
-    id:           Codec_ID,
+    type:         AVMediaType,
+    id:           AVCodecID,
     pixel_format: Pixel_Format,
     capabilities: Hardware_Accelerator_Codec_Capabilities_Flag,
 }
@@ -2247,14 +2247,14 @@ Codec_Parser :: struct {
 	 * the frame start was in a previous packet. */
     parser_parse:   #type proc(
         ctx: ^Codec_Parser_Context,
-        avctx: ^Codec_Context,
+        avctx: ^AVCodec_Context,
         poutbuf: ^[^]u8,
         poutbuf_size: ^i32,
         buf: [^]u8,
         buf_size: i32,
     ) -> i32,
     parser_close:   #type proc(ctx: ^Codec_Parser_Context),
-    split:          #type proc(ctx: ^Codec_Context, buf: [^]u8, buf_size: i32) -> i32,
+    split:          #type proc(ctx: ^AVCodec_Context, buf: [^]u8, buf_size: i32) -> i32,
 }
 
 
@@ -2270,9 +2270,9 @@ Codec_Parser :: struct {
  */
 BSF_Context :: struct {
     /**
-	 * A class for logging and AVOptions
-	 */
-    class:         ^Class,
+ * A class for logging and AVOptions
+ */
+    class:         ^AVClass,
 
     /**
 	 * The bitstream filter this context is an instance of.
@@ -2290,25 +2290,25 @@ BSF_Context :: struct {
 	 * av_bsf_alloc(), it needs to be filled by the caller before
 	 * av_bsf_init().
 	 */
-    par_in:        ^Codec_Parameters,
+    par_in:        ^AVCodecParameters,
 
     /**
 	 * Parameters of the output stream. This field is allocated in
 	 * av_bsf_alloc(), it is set by the filter in av_bsf_init().
 	 */
-    par_out:       ^Codec_Parameters,
+    par_out:       ^AVCodecParameters,
 
     /**
 	 * The timebase used for the timestamps of the input packets. Set by the
 	 * caller before av_bsf_init().
 	 */
-    time_base_in:  Rational,
+    time_base_in:  AVRational,
 
     /**
 	 * The timebase used for the timestamps of the output packets. Set by the
 	 * filter in av_bsf_init().
 	 */
-    time_base_out: Rational,
+    time_base_out: AVRational,
 }
 
 Bit_Stream_Filter :: struct {
@@ -2319,7 +2319,7 @@ Bit_Stream_Filter :: struct {
 	 * NONE.
 	 * May be NULL, in that case the bitstream filter works with any codec id.
 	 */
-    codec_ids:  [^]Codec_ID,
+    codec_ids:  [^]AVCodecID,
 
     /**
 	 * A class for the private data, used to declare bitstream filter private
@@ -2330,7 +2330,7 @@ Bit_Stream_Filter :: struct {
 	 * must be a pointer to AVClass, which will be set by libavcodec generic
 	 * code to this class.
 	 */
-    priv_class: ^Class,
+    priv_class: ^AVClass,
 }
 
 
@@ -2356,9 +2356,9 @@ Lock_Operation :: enum i32 {
 //===codec_desc.h
 Codec_Descriptor_Property :: enum i32 {
     /**
-	 * Codec uses only intra compression.
-	 * Video and audio codecs only.
-	 */
+ * Codec uses only intra compression.
+ * Video and audio codecs only.
+ */
     Intra_Only = 0,
     /**
 	 * Codec supports lossy compression. Audio and video codecs only.
@@ -2398,8 +2398,8 @@ Codec_Descriptor_Property :: enum i32 {
 Codec_Descriptor_Properties :: bit_set[Codec_Descriptor_Property;i32]
 
 Codec_Descriptor :: struct {
-    id:         Codec_ID,
-    type:       Media_Type,
+    id:         AVCodecID,
+    type:       AVMediaType,
 
     /**
 	 * Name of the codec described by this descriptor. It is non-empty and
@@ -2472,7 +2472,7 @@ DXVA_Context :: struct {
    CODEC IDS - CODEC IDS - CODEC IDS - CODEC IDS - CODEC IDS - CODEC IDS - CODEC IDS - CODEC IDS
    ============================================================================================== */
 
-Codec_ID :: enum u32 {
+AVCodecID :: enum u32 {
     NONE,
 
     /* video codecs */
@@ -3072,8 +3072,8 @@ Dirac_Sequence_Header :: struct {
     color_spec_index:    u8, ///< index into dirac_color_spec_presets[]
     profile:             i32,
     level:               i32,
-    framerate:           Rational,
-    sample_aspect_ratio: Rational,
+    framerate:           AVRational,
+    sample_aspect_ratio: AVRational,
     pix_fmt:             Pixel_Format,
     color_range:         Color_Range,
     color_primaries:     Color_Primaries,
@@ -3263,7 +3263,7 @@ Dev_To_App_Message_Type :: enum i32 {
 Device_Info :: struct {
     device_name:        cstring,
     device_description: cstring,
-    media_types:        [^]Media_Type,
+    media_types:        [^]AVMediaType,
     nb_media_types:     i32,
 }
 
@@ -3327,9 +3327,9 @@ Codec_HW_Config_Methods :: bit_set[Codec_HW_Config_Method;i32]
  * returned during next query. Setting invalid value may limit results to zero.
 */
 Device_Capabilities_Query :: struct {
-    class:          ^Class,
-    device_context: ^Format_Context,
-    codec:          Codec_ID,
+    class:          ^AVClass,
+    device_context: ^AVFormatContext,
+    codec:          AVCodecID,
     sample_format:  Sample_Format,
     pixel_format:   Pixel_Format,
     sample_rate:    i32,
@@ -3339,7 +3339,7 @@ Device_Capabilities_Query :: struct {
     window_height:  i32,
     frame_width:    i32,
     frame_height:   i32,
-    fps:            Rational,
+    fps:            AVRational,
 }
 
 /* ==============================================================================================
@@ -3367,10 +3367,10 @@ Buffer_Src_Flags :: bit_set[Buffer_Src_Flag;i32]
 
 Filter_Buffer_Src_Parameters :: struct {
     format:              i32,
-    time_base:           Rational,
+    time_base:           AVRational,
     width, height:       i32,
-    sample_aspect_ratio: Rational,
-    frame_rate:          Rational,
+    sample_aspect_ratio: AVRational,
+    frame_rate:          AVRational,
     hw_frames_ctx:       ^Buffer_Ref,
     sample_rate:         i32,
     ch_layout:           Channel_Layout,
@@ -3402,7 +3402,7 @@ Filter_Auto_Convert :: enum i32 {
 }
 
 Filter_Context :: struct {
-    av_class:        ^Class,
+    av_class:        ^AVClass,
     filter:          ^Filter,
     name:            cstring,
     input_pads:      [^]Filter_Pad,
@@ -3431,13 +3431,13 @@ Filter_Link :: struct {
     srcpad:              ^Filter_Pad,
     dst:                 ^Filter_Context,
     dstpad:              ^Filter_Pad,
-    type:                Media_Type,
+    type:                AVMediaType,
     w:                   i32,
     h:                   i32,
-    sample_aspect_ratio: Rational,
+    sample_aspect_ratio: AVRational,
     sample_rate:         i32,
     format:              i32,
-    time_base:           Rational,
+    time_base:           AVRational,
     ch_layout:           Channel_Layout,
     incfg:               Filter_Formats_Config,
     outcfg:              Filter_Formats_Config,
@@ -3446,7 +3446,7 @@ Filter_Link :: struct {
     current_pts:         i64,
     current_pts_us:      i64,
     age_index:           i32,
-    frame_rate:          Rational,
+    frame_rate:          AVRational,
     min_samples:         i32,
     max_samples:         i32,
     channels:            i32,
@@ -3464,14 +3464,14 @@ Filter :: struct {
     description:     cstring,
     inputs:          [^]Filter_Pad,
     outputs:         [^]Filter_Pad,
-    priv_class:      ^Class,
+    priv_class:      ^AVClass,
     flags:           Filter_Flags,
     nb_inputs:       u8,
     nb_outputs:      u8,
     formats_state:   u8,
     preinit:         #type proc(ctx: ^Filter_Context) -> i32,
     init:            #type proc(ctx: ^Filter_Context) -> i32,
-    init_dict:       #type proc(ctx: ^Filter_Context, options: ^[^]Dictionary) -> i32,
+    init_dict:       #type proc(ctx: ^Filter_Context, options: ^[^]AVDictionary) -> i32,
     uninit:          #type proc(ctx: ^Filter_Context),
     formats:         struct #raw_union {
         query_func:   proc(ctx: ^Filter_Context) -> i32,
@@ -3504,7 +3504,7 @@ Filter_Graph_Execute_Callback :: #type proc(
 
 
 Filter_Graph :: struct {
-    av_class:             ^Class,
+    av_class:             ^AVClass,
     filters:              ^[^]Filter_Context,
     nb_filters:           u32,
     scale_sws_opts:       cstring,
@@ -3540,7 +3540,7 @@ Filter_Params :: struct {
     filter:        ^Filter_Context,
     filter_name:   cstring,
     instance_name: cstring,
-    opts:          ^Dictionary,
+    opts:          ^AVDictionary,
     inputs:        ^[^]Filter_Pad_Params,
     nb_inputs:     u32,
     outputs:       ^[^]Filter_Pad_Params,
@@ -3620,7 +3620,7 @@ Format_Seek_Flags :: bit_set[Format_Seek_Flag;i32]
 /*
 	Muxers
 */
-Output_Format :: struct {
+AVOutputFormat :: struct {
     name:           cstring,
     long_name:      cstring,
     mime_type:      cstring,
@@ -3629,9 +3629,9 @@ Output_Format :: struct {
     /*
 		Output support.
 	*/
-    audio_codec:    Codec_ID, // Default Audio    Codec
-    video_codec:    Codec_ID, // Default Video    Codec
-    subtitle_codec: Codec_ID, // Default Subtitle Codec
+    audio_codec:    AVCodecID, // Default Audio    Codec
+    video_codec:    AVCodecID, // Default Video    Codec
+    subtitle_codec: AVCodecID, // Default Subtitle Codec
     flags:          Format_Flags,
 
     /*
@@ -3639,42 +3639,42 @@ Output_Format :: struct {
 		choice first". The arrays are all terminated by .None
 	*/
     codec_tags:     ^[^]Codec_Tag,
-    priv_class:     ^Class,
+    priv_class:     ^AVClass,
 }
 
 /*
 	Demuxers
 */
-Input_Format :: struct {
-    name:            cstring,
-    long_name:       cstring,
-    flags:           Format_Flags,
-    extensions:      cstring,
-    codec_tags:      ^[^]Codec_Tag,
-    priv_class:      ^Class,
-    mime_type:       cstring,
+AVInputFormat :: struct {
+    name:       cstring,
+    long_name:  cstring,
+    flags:      Format_Flags,
+    extensions: cstring,
+    codec_tags: ^[^]Codec_Tag,
+    priv_class: ^AVClass,
+    mime_type:  cstring,
 
     // The rest of the fields are not part of the public API.
-    rawcodec_id:     i32,
-    priv_data_size:  i32,
-    flags_internal:  i32,
-    read_probe:      #type proc(probe: ^Probe_Data) -> i32,
-    read_header:     #type proc(ctx: ^Format_Context) -> i32,
-    read_packet:     #type proc(ctx: ^Format_Context, pkt: ^Packet) -> i32,
-    readclose:       #type proc(ctx: ^Format_Context) -> i32,
-    read_seek:       #type proc(ctx: ^Format_Context, stream_index: i32, timestamp: i64, flags: i32) -> i32,
-    read_timestamp:  #type proc(ctx: ^Format_Context, stream_index: i32, pos: ^i64, pos_limit: i64) -> i64,
-    read_play:       #type proc(ctx: ^Format_Context) -> i32,
-    read_pause:      #type proc(ctx: ^Format_Context) -> i32,
-    read_seek2:      #type proc(
-        ctx: ^Format_Context,
-        stream_index: i32,
-        min_ts: i64,
-        ts: i64,
-        max_ts: i64,
-        flags: i32,
-    ) -> i32,
-    get_device_list: #type proc(ctx: ^Format_Context, device_list: ^Device_Info_List) -> i32,
+    //    rawcodec_id:     i32,
+    //    priv_data_size:  i32,
+    //    flags_internal:  i32,
+    //    read_probe:      #type proc(probe: ^Probe_Data) -> i32,
+    //    read_header:     #type proc(ctx: ^AVFormat_Context) -> i32,
+    //    read_packet:     #type proc(ctx: ^AVFormat_Context, pkt: ^Packet) -> i32,
+    //    readclose:       #type proc(ctx: ^AVFormat_Context) -> i32,
+    //    read_seek:       #type proc(ctx: ^AVFormat_Context, stream_index: i32, timestamp: i64, flags: i32) -> i32,
+    //    read_timestamp:  #type proc(ctx: ^AVFormat_Context, stream_index: i32, pos: ^i64, pos_limit: i64) -> i64,
+    //    read_play:       #type proc(ctx: ^AVFormat_Context) -> i32,
+    //    read_pause:      #type proc(ctx: ^AVFormat_Context) -> i32,
+    //    read_seek2:      #type proc(
+    //        ctx: ^AVFormat_Context,
+    //        stream_index: i32,
+    //        min_ts: i64,
+    //        ts: i64,
+    //        max_ts: i64,
+    //        flags: i32,
+    //    ) -> i32,
+    //    get_device_list: #type proc(ctx: ^AVFormat_Context, device_list: ^Device_Info_List) -> i32,
 }
 
 IO_Dir_Entry_Type :: enum i32 {
@@ -3724,8 +3724,8 @@ IO_Data_Marker_Type :: enum i32 {
 	they should only be set by the client application when implementing custom I/O.
 	Normally these are set to the function pointers specified in avio_alloc_context()
 */
-IO_Context :: struct {
-    class:                 ^Class,
+AVIOContext :: struct {
+    class:                 ^AVClass,
     buffer:                [^]u8,
     buffer_size:           i32,
     buf_ptr:               ^u8,
@@ -3762,31 +3762,31 @@ IO_Context :: struct {
     bytes_written:         i64,
 }
 
-IO_Interrupt_CB :: struct {
+AVIOInterruptCB :: struct {
     callback: #type proc() -> i32,
     opaque:   rawptr,
 }
 
-IO_Flag :: enum i32 {
+AVIOFlag :: enum i32 {
     Read     = 0,
     Write    = 1,
     Nonblock = 3,
     Direct   = 11,
 }
-IO_Flags :: bit_set[IO_Flag;i32]
+AVIOFlags :: bit_set[AVIOFlag;i32]
 
 Open_Callback :: #type proc(
-    ctx: ^Format_Context,
-    pb: ^[^]IO_Context,
+    ctx: ^AVFormatContext,
+    pb: ^[^]AVIOContext,
     url: cstring,
     flags: i32,
-    intcb: ^IO_Interrupt_CB,
-    options: ^[^]Dictionary,
+    intcb: ^AVIOInterruptCB,
+    options: ^[^]AVDictionary,
 ) -> i32
 
 
 URL_Context :: struct {
-    class:              ^Class, // information for av_log().
+    class:              ^AVClass, // information for av_log().
     protocol:           ^URL_Protocol,
     priv_data:          rawptr,
     filename:           cstring, // specified URL
@@ -3794,7 +3794,7 @@ URL_Context :: struct {
     max_packet_size:    i32, // if non zero, the stream is packetized with this max packet size
     is_streamed:        b32, // true if streamed (no seek possible), default = false
     is_connected:       b32,
-    interrupt_callback: IO_Interrupt_CB,
+    interrupt_callback: AVIOInterruptCB,
     rw_timeout:         i64, // maximum time to wait for (network) read/write operation completion, in mcs.
     protocol_whitelist: cstring,
     protocol_blacklist: cstring,
@@ -3809,7 +3809,7 @@ URL_Protocol :: struct {
 	 * protocols. options are then to be passed to ffurl_open_whitelist()
 	 * or ffurl_connect() for those nested protocols.
 	 */
-    url_open2:                 #type proc(h: ^URL_Context, url: cstring, flags: i32, options: ^[^]Dictionary) -> i32,
+    url_open2:                 #type proc(h: ^URL_Context, url: cstring, flags: i32, options: ^[^]AVDictionary) -> i32,
     url_accept:                #type proc(h: ^URL_Context, c: ^[^]URL_Context) -> i32,
     url_handshake:             #type proc(c: ^URL_Context) -> i32,
 
@@ -3835,7 +3835,7 @@ URL_Protocol :: struct {
     url_get_multi_file_handle: #type proc(h: ^URL_Context, handles: ^[^]i32, num_handles: ^i32) -> i32,
     url_get_short_seek:        #type proc(h: ^URL_Context) -> i32,
     url_shutdown:              #type proc(h: ^URL_Context, flags: i32) -> i32,
-    priv_data_class:           ^Class,
+    priv_data_class:           ^AVClass,
     priv_data_size:            i32,
     flags:                     i32,
     url_check:                 #type proc(h: ^URL_Context, mask: i32) -> i32,
@@ -3855,7 +3855,7 @@ IO_Dir_Context :: struct {
  * The duration of a video can be estimated through various ways, and this enum can be used
  * to know how the duration was estimated.
  */
-Duration_Estimation_Method :: enum i32 {
+AVDurationEstimationMethod :: enum i32 {
     From_PTS, ///< Duration accurately estimated from PTSes
     From_Stream, ///< Duration estimated from a stream with a known duration
     From_Bitrate, ///< Duration estimated from bitrate (less accurate)
@@ -3866,7 +3866,7 @@ Duration_Estimation_Method :: enum i32 {
  * Flags modifying the (de)muxer behaviour. A combination of AVFMT_FLAG_*.
  * Set by the user before avformat_open_input() / avformat_write_header().
  */
-Format_Context_Flag :: enum i32 {
+AVFormatContextFlag :: enum i32 {
     GenPTS          = 0, ///< Generate missing pts even if it requires parsing future frames.
     Ignore_Index    = 1, ///< Ignore index.
     Non_Blocking    = 2, ///< Do not block when reading packets from input.
@@ -3890,35 +3890,43 @@ Format_Context_Flag :: enum i32 {
     Shortest        = 20, ///< Stop muxing when the shortest stream stops.
     Auto_BSF        = 21, //< Add bitstream filters as requested by the muxer
 }
-Format_Context_Flags :: bit_set[Format_Context_Flag;i32]
+AVFormatContextFlags :: bit_set[AVFormatContextFlag;i32]
 
-Format_Context_Debug :: enum i32 {
+AVFormatContextDebug :: enum i32 {
     TS = 1,
 }
 
-Format_Context_Event_Flag :: enum i32 {
+AVFormatContextEventFlag :: enum i32 {
     /**
-	 * - demuxing: the demuxer read new metadata from the file and updated
-	 *   AVFormatContext.metadata accordingly
-	 * - muxing: the user updated AVFormatContext.metadata and wishes the muxer to
-	 *   write it into the file
-	 */
+ * - demuxing: the demuxer read new metadata from the file and updated
+ *   AVFormatContext.metadata accordingly
+ * - muxing: the user updated AVFormatContext.metadata and wishes the muxer to
+ *   write it into the file
+ */
     Metadata_Updated = 0,
 }
-Format_Context_Event_Flags :: bit_set[Format_Context_Event_Flag;i32]
+AVFormatContextEventFlags :: bit_set[AVFormatContextEventFlag;i32]
 
-Avoid_Negative_TS_Flag :: enum i32 {
+AVAvoidNegativeTSFlag :: enum i32 {
     Auto               = -1, ///< Enabled when required by target format
+    Disable            = 0, ///< Do not shift timestamps even when they are negative.
     Make_None_Negative = 1, ///< Shift timestamps so they are non negative
     Make_Zero          = 2, ///< Shift timestamps so that they start at 0
 }
 
-Format_Control_Message :: #type proc(ctx: Format_Context, type: i32, data: [^]u8, data_size: i64) -> i32
+AVFormatControlMessage :: #type proc(ctx: AVFormatContext, type: i32, data: [^]u8, data_size: i64) -> i32
 
 Frame_Filename_Flag :: enum i32 {
     Multiple = 0,
 }
 Frame_Filename_Flags :: bit_set[Frame_Filename_Flag;i32]
+
+AVStreamGroupParamsType :: enum i32 {
+    None = 0,
+    IAMFAudioElement,
+    IAMFMixPresentation,
+    TitleGrid,
+}
 
 /**
  * Format I/O context.
@@ -3937,26 +3945,107 @@ Frame_Filename_Flags :: bit_set[Frame_Filename_Flag;i32]
 
 Format_Internal :: struct {}
 
-Format_Context :: struct {
+AVIAMFAudioElement :: struct {}
+AVIAMFMixPresentation :: struct {}
+
+AVStreamGroup :: struct {
     /**
-	 * A class for logging and @ref avoptions. Set by avformat.alloc_context().
-	 * Exports (de)muxer private options if they exist.
-	 */
-    class:                           ^Class,
+ * A class for @ref avoptions. Set by avformat_stream_group_create().
+ */
+    av_class:    ^AVClass,
+    priv_data:   rawptr,
+
+    /**
+     * Group index in AVFormatContext.
+     */
+    index:       u32,
+
+    /**
+     * Group type-specific group ID.
+     *
+     * decoding: set by libavformat
+     * encoding: may set by the user
+     */
+    id:          i64,
+
+    /**
+     * Group type
+     *
+     * decoding: set by libavformat on group creation
+     * encoding: set by avformat_stream_group_create()
+     */
+    type:        AVStreamGroupParamsType,
+
+    /**
+     * Group type-specific parameters
+     */
+    params:      struct #raw_union {
+        iamf_audio_element:    ^AVIAMFAudioElement,
+        iamf_mix_presentation: ^AVIAMFMixPresentation,
+        tile_grid:             ^AVStreamGroupTileGrid,
+    },
+
+    /**
+     * Metadata that applies to the whole group.
+     *
+     * - demuxing: set by libavformat on group creation
+     * - muxing: may be set by the caller before avformat_write_header()
+     *
+     * Freed by libavformat in avformat_free_context().
+     */
+    metadata:    ^AVDictionary,
+
+    /**
+     * Number of elements in AVStreamGroup.streams.
+     *
+     * Set by avformat_stream_group_add_stream() must not be modified by any other code.
+     */
+    nb_streams:  u32,
+
+    /**
+     * A list of streams in the group. New entries are created with
+     * avformat_stream_group_add_stream().
+     *
+     * - demuxing: entries are created by libavformat on group creation.
+     *             If AVFMTCTX_NOHEADER is set in ctx_flags, then new entries may also
+     *             appear in av_read_frame().
+     * - muxing: entries are created by the user before avformat_write_header().
+     *
+     * Freed by libavformat in avformat_free_context().
+     */
+    streams:     ^[^]AVStream,
+
+    /**
+     * Stream group disposition - a combination of AV_DISPOSITION_* flags.
+     * This field currently applies to all defined AVStreamGroupParamsType.
+     *
+     * - demuxing: set by libavformat when creating the group or in
+     *             avformat_find_stream_info().
+     * - muxing: may be set by the caller before avformat_write_header().
+     */
+    disposition: i32,
+}
+
+AVFormatContext :: struct {
+    /**
+ * A class for logging and @ref avoptions. Set by avformat.alloc_context().
+ * Exports (de)muxer private options if they exist.
+ */
+    class:                           ^AVClass,
 
     /**
 	 * The input container format.
 	 *
 	 * Demuxing only, set by avformat.open_input().
 	 */
-    input_format:                    ^Input_Format,
+    input_format:                    ^AVInputFormat,
 
     /**
 	 * The output container format.
 	 *
 	 * Muxing only, must be set by the caller before avformat_write_header().
 	 */
-    output_format:                   ^Output_Format,
+    output_format:                   ^AVOutputFormat,
 
     /**
 	 * Format private data. This is an Options-enabled struct
@@ -3978,7 +4067,7 @@ Format_Context :: struct {
 	 * Do NOT set this field if AVFMT_NOFILE flag is set in iformat/oformat.flags. In such a case, the (de)muxer will handle
 	 * I/O in some other way and this field will be NULL.
 	 */
-    pb:                              ^IO_Context,
+    pb:                              ^AVIOContext,
 
     /**
 	 * Flags signalling stream properties. A combination of AVFMTCTX_*.
@@ -4004,7 +4093,41 @@ Format_Context :: struct {
 	 *
 	 * Freed by libavformat in avformat.free_context().
 	 */
-    streams:                         [^]^Stream,
+    streams:                         [^]^AVStream,
+
+    /**
+     * Number of elements in AVFormatContext.stream_groups.
+     *
+     * Set by avformat_stream_group_create(), must not be modified by any other code.
+     */
+    nb_stream_groups:                u32,
+
+    /**
+    * A list of all stream groups in the file. New groups are created with
+    * avformat_stream_group_create(), and filled with avformat_stream_group_add_stream().
+    *
+    * - demuxing: groups may be created by libavformat in avformat_open_input().
+    *             If AVFMTCTX_NOHEADER is set in ctx_flags, then new groups may also
+    *             appear in av_read_frame().
+    * - muxing: groups may be created by the user before avformat_write_header().
+    *
+    * Freed by libavformat in avformat_free_context().
+    */
+    stream_groups:                   ^[^]AVStreamGroup,
+
+    /**
+	 * Number of chapters in AVChapter array.
+	 * When muxing, chapters are normally written in the file header,
+	 * so nb_chapters should normally be initialized before write_header
+	 * is called. Some muxers (e.g. mov and mkv) can also write chapters
+	 * in the trailer.  To write chapters in the trailer, nb_chapters
+	 * must be zero when write_header is called and non-zero when
+	 * write_trailer is called.
+	 * - muxing: set by user
+	 * - demuxing: set by libavformat
+	 */
+    nb_chapters:                     u32,
+    chapters:                        ^[^]AVChapter,
 
     /**
 	 * input or output URL. Unlike the old filename field, this field has no
@@ -4048,7 +4171,7 @@ Format_Context :: struct {
     bit_rate:                        i64,
     packet_size:                     u32,
     max_delay:                       i32,
-    flags:                           Format_Context_Flags,
+    flags:                           AVFormatContextFlags,
 
     /**
 	 * Maximum size of the data read from input for determining
@@ -4067,57 +4190,31 @@ Format_Context :: struct {
     key:                             [^]u8,
     keylen:                          i32,
     nb_programs:                     u32,
-    programs:                        ^[^]Program,
+    programs:                        ^[^]AVProgram,
 
     /**
 	 * Forced video codec_id.
 	 * Demuxing: Set by user.
 	 */
-    video_codec_id:                  Codec_ID,
+    video_codec_id:                  AVCodecID,
 
     /**
 	 * Forced audio codec_id.
 	 * Demuxing: Set by user.
 	 */
-    audio_codec_id:                  Codec_ID,
+    audio_codec_id:                  AVCodecID,
 
     /**
 	 * Forced subtitle codec_id.
 	 * Demuxing: Set by user.
 	 */
-    subtitle_codec_id:               Codec_ID,
+    subtitle_codec_id:               AVCodecID,
 
     /**
-	 * Maximum amount of memory in bytes to use for the index of each stream.
-	 * If the index exceeds this size, entries will be discarded as
-	 * needed to maintain a smaller size. This can lead to slower or less
-	 * accurate seeking (depends on demuxer).
-	 * Demuxers for which a full in-memory index is mandatory will ignore
-	 * this.
-	 * - muxing: unused
-	 * - demuxing: set by user
-	 */
-    max_index_size:                  u32,
-
-    /**
-	 * Maximum amount of memory in bytes to use for buffering frames
-	 * obtained from realtime capture devices.
-	 */
-    max_picture_buffer:              u32,
-
-    /**
-	 * Number of chapters in AVChapter array.
-	 * When muxing, chapters are normally written in the file header,
-	 * so nb_chapters should normally be initialized before write_header
-	 * is called. Some muxers (e.g. mov and mkv) can also write chapters
-	 * in the trailer.  To write chapters in the trailer, nb_chapters
-	 * must be zero when write_header is called and non-zero when
-	 * write_trailer is called.
-	 * - muxing: set by user
-	 * - demuxing: set by libavformat
-	 */
-    nb_chapters:                     u32,
-    chapters:                        ^[^]Chapter,
+    * Forced Data codec_id.
+    * Demuxing: Set by user.
+    */
+    data_codec_id:                   AVCodecID,
 
     /**
 	 * Metadata that applies to the whole file.
@@ -4127,7 +4224,7 @@ Format_Context :: struct {
 	 *
 	 * Freed by libavformat in avformat_free_context().
 	 */
-    metadata:                        ^Dictionary,
+    metadata:                        ^AVDictionary,
 
     /**
 	 * Start time of the stream in real world time, in microseconds
@@ -4165,35 +4262,88 @@ Format_Context :: struct {
 	 * should also be passed to avio_open2() if it's used to
 	 * open the file.
 	 */
-    interrupt_callback:              IO_Interrupt_CB,
+    interrupt_callback:              AVIOInterruptCB,
 
     /**
 	 * Flags to enable debugging.
 	 */
-    debug:                           Format_Context_Debug,
+    debug:                           AVFormatContextDebug,
 
     /**
-	 * Maximum buffering duration for interleaving.
-	 *
-	 * To ensure all the streams are interleaved correctly,
-	 * av_interleaved_write_frame() will wait until it has at least one packet
-	 * for each stream before actually writing any packets to the output file.
-	 * When some streams are "sparse" (i.e. there are large gaps between
-	 * successive packets), this can result in excessive buffering.
-	 *
-	 * This field specifies the maximum difference between the timestamps of the
-	 * first and the last packet in the muxing queue, above which libavformat
-	 * will output a packet regardless of whether it has queued a packet for all
-	 * the streams.
-	 *
-	 * Muxing only, set by the caller before avformat_write_header().
+     * The maximum number of streams.
+     * - encoding: unused
+     * - decoding: set by user
+     */
+    max_streams:                     i32,
+
+    /**
+	 * Maximum amount of memory in bytes to use for the index of each stream.
+	 * If the index exceeds this size, entries will be discarded as
+	 * needed to maintain a smaller size. This can lead to slower or less
+	 * accurate seeking (depends on demuxer).
+	 * Demuxers for which a full in-memory index is mandatory will ignore
+	 * this.
+	 * - muxing: unused
+	 * - demuxing: set by user
 	 */
+    max_index_size:                  u32,
+
+    /**
+	 * Maximum amount of memory in bytes to use for buffering frames
+	 * obtained from realtime capture devices.
+	 */
+    max_picture_buffer:              u32,
+
+    /**
+     * Maximum buffering duration for interleaving.
+     *
+     * To ensure all the streams are interleaved correctly,
+     * av_interleaved_write_frame() will wait until it has at least one packet
+     * for each stream before actually writing any packets to the output file.
+     * When some streams are "sparse" (i.e. there are large gaps between
+     * successive packets), this can result in excessive buffering.
+     *
+     * This field specifies the maximum difference between the timestamps of the
+     * first and the last packet in the muxing queue, above which libavformat
+     * will output a packet regardless of whether it has queued a packet for all
+     * the streams.
+     *
+     * Muxing only, set by the caller before avformat_write_header().
+     */
     max_interleave_delta:            i64,
 
     /**
-	 * Allow non-standard and experimental extension
-	 * @see AVCodec_Context.strict_std_compliance
-	 */
+     * Maximum number of packets to read while waiting for the first timestamp.
+     * Decoding only.
+     */
+    max_ts_probe:                    i32,
+
+    /**
+     * Max chunk time in microseconds.
+     * Note, not all formats support this and unpredictable things may happen if it is used when not supported.
+     * - encoding: Set by user
+     * - decoding: unused
+     */
+    max_chunk_duration:              i32,
+    /**
+     * Max chunk size in bytes
+     * Note, not all formats support this and unpredictable things may happen if it is used when not supported.
+     * - encoding: Set by user
+     * - decoding: unused
+     */
+    max_chunk_size:                  i32,
+
+    /**
+     * Maximum number of packets that can be probed
+     * - encoding: unused
+     * - decoding: set by user
+     */
+    max_probe_packets:               i32,
+
+    /**
+     * Allow non-standard and experimental extension
+     * @see AVCodecContext.strict_std_compliance
+     */
     strict_std_compliance:           i32,
 
     /**
@@ -4207,13 +4357,7 @@ Format_Context :: struct {
 	 *   indicate a user-triggered event.  The muxer will clear the flags for
 	 *   events it has handled in av_[interleaved]_write_frame().
 	 */
-    event_flags:                     Format_Context_Event_Flags,
-
-    /**
-	 * Maximum number of packets to read while waiting for the first timestamp.
-	 * Decoding only.
-	 */
-    max_ts_probe:                    i32,
+    event_flags:                     AVFormatContextEventFlags,
 
     /**
 	 * Avoid negative timestamps during muxing.
@@ -4222,51 +4366,38 @@ Format_Context :: struct {
 	 * - muxing: Set by user
 	 * - demuxing: unused
 	 */
-    avoid_negative_ts:               Avoid_Negative_TS_Flag,
+    avoid_negative_ts:               AVAvoidNegativeTSFlag,
 
     /**
-	 * Transport stream id.
-	 * This will be moved into demuxer private options. Thus no API/ABI compatibility
-	 */
-    ts_id:                           i32,
-
-    /**
-	 * Audio preload in microseconds.
-	 * Note, not all formats support this and unpredictable things may happen if it is used when not supported.
-	 * - encoding: Set by user
-	 * - decoding: unused
-	 */
+    * Audio preload in microseconds.
+    * Note, not all formats support this and unpredictable things may happen if it is used when not supported.
+    * - encoding: Set by user
+    * - decoding: unused
+    */
     audio_preload:                   i32,
 
     /**
-	 * Max chunk time in microseconds.
-	 * Note, not all formats support this and unpredictable things may happen if it is used when not supported.
-	 * - encoding: Set by user
-	 * - decoding: unused
-	 */
-    max_chunk_duration:              i32,
-
-    /**
-	 * Max chunk size in bytes
-	 * Note, not all formats support this and unpredictable things may happen if it is used when not supported.
-	 * - encoding: Set by user
-	 * - decoding: unused
-	 */
-    max_chunk_size:                  i32,
-
-    /**
-	 * forces the use of wallclock timestamps as pts/dts of packets
-	 * This has undefined results in the presence of B frames.
-	 * - encoding: unused
-	 * - decoding: Set by user
-	 */
+     * forces the use of wallclock timestamps as pts/dts of packets
+     * This has undefined results in the presence of B frames.
+     * - encoding: unused
+     * - decoding: Set by user
+     */
     use_wallclock_as_timestamps:     i32,
 
     /**
-	 * avio flags, used to force AVIO_FLAG_DIRECT.
-	 * - encoding: unused
-	 * - decoding: Set by user
-	 */
+     * Skip duration calcuation in estimate_timings_from_pts.
+     * - encoding: unused
+     * - decoding: set by user
+     *
+     * @see duration_probesize
+     */
+    skip_estimate_duration_from_pts: i32,
+
+    /**
+     * avio flags, used to force AVIO_FLAG_DIRECT.
+     * - encoding: unused
+     * - decoding: Set by user
+     */
     avio_flags:                      i32,
 
     /**
@@ -4275,50 +4406,54 @@ Format_Context :: struct {
 	 * - encoding: unused
 	 * - decoding: Read by user
 	 */
-    duration_estimation_method:      Duration_Estimation_Method,
+    duration_estimation_method:      AVDurationEstimationMethod,
 
     /**
-	 * Skip initial bytes when opening stream
-	 * - encoding: unused
-	 * - decoding: Set by user
-	 */
+     * Skip initial bytes when opening stream
+     * - encoding: unused
+     * - decoding: Set by user
+     */
     skip_initial_bytes:              i64,
 
     /**
-	 * Correct single timestamp overflows
-	 * - encoding: unused
-	 * - decoding: Set by user
-	 */
+     * Correct single timestamp overflows
+     * - encoding: unused
+     * - decoding: Set by user
+     */
     correct_ts_overflow:             u32,
 
     /**
-	 * Force seeking to any (also non key) frames.
-	 * - encoding: unused
-	 * - decoding: Set by user
-	 */
+     * Force seeking to any (also non key) frames.
+     * - encoding: unused
+     * - decoding: Set by user
+     */
     seek2any:                        i32,
 
     /**
-	 * Flush the I/O context after each packet.
-	 * - encoding: Set by user
-	 * - decoding: unused
-	 */
+     * Flush the I/O context after each packet.
+     * - encoding: Set by user
+     * - decoding: unused
+     */
     flush_packets:                   i32,
 
     /**
-	 * format probing score.
-	 * The maximal score is AVPROBE_SCORE_MAX, its set when the demuxer probes
-	 * the format.
-	 * - encoding: unused
-	 * - decoding: set by avformat, read by user
-	 */
+     * format probing score.
+     * The maximal score is AVPROBE_SCORE_MAX, its set when the demuxer probes
+     * the format.
+     * - encoding: unused
+     * - decoding: set by avformat, read by user
+     */
     probe_score:                     i32,
 
     /**
-	 * number of bytes to read maximally to identify format.
-	 * - encoding: unused
-	 * - decoding: set by user
-	 */
+     * Maximum number of bytes read from input in order to identify the
+     * \ref AVInputFormat "input format". Only used when the format is not set
+     * explicitly by the caller.
+     *
+     * Demuxing only, set by the caller before avformat_open_input().
+     *
+     * @see probesize
+     */
     format_probesize:                i32,
 
     /**
@@ -4338,6 +4473,20 @@ Format_Context :: struct {
     format_whitelist:                cstring,
 
     /**
+	 * ',' separated list of allowed protocols.
+	 * - encoding: unused
+	 * - decoding: set by user
+	 */
+    protocol_whitelist:              cstring,
+
+    /**
+	 * ',' separated list of disallowed protocols.
+	 * - encoding: unused
+	 * - decoding: set by user
+	 */
+    protocol_blacklist:              cstring,
+
+    /**
 	 * IO repositioned flag.
 	 * This is set by avformat when the underlaying IO context read pointer
 	 * is repositioned, for example when doing byte based seeking.
@@ -4351,7 +4500,7 @@ Format_Context :: struct {
 	 * the same codec_id.
 	 * Demuxing: Set by user
 	 */
-    video_codec:                     ^Codec,
+    video_codec:                     ^AVCodec,
 
     /**
 	 * Forced audio codec.
@@ -4359,7 +4508,7 @@ Format_Context :: struct {
 	 * the same codec_id.
 	 * Demuxing: Set by user
 	 */
-    audio_codec:                     ^Codec,
+    audio_codec:                     ^AVCodec,
 
     /**
 	 * Forced subtitle codec.
@@ -4367,7 +4516,7 @@ Format_Context :: struct {
 	 * the same codec_id.
 	 * Demuxing: Set by user
 	 */
-    subtitle_codec:                  ^Codec,
+    subtitle_codec:                  ^AVCodec,
 
     /**
 	 * Forced data codec.
@@ -4375,7 +4524,7 @@ Format_Context :: struct {
 	 * the same codec_id.
 	 * Demuxing: Set by user
 	 */
-    data_codec:                      ^Codec,
+    data_codec:                      ^AVCodec,
 
     /**
 	 * Number of bytes to be written as padding in a metadata header.
@@ -4393,7 +4542,7 @@ Format_Context :: struct {
     /**
 	 * Callback used by devices to communicate with application.
 	 */
-    control_message_cb:              Format_Control_Message,
+    control_message_cb:              AVFormatControlMessage,
 
     /**
 	 * Output timestamp offset, in microseconds.
@@ -4408,19 +4557,6 @@ Format_Context :: struct {
 	 * - demuxing: Set by user.
 	 */
     dump_separator:                  cstring,
-
-    /**
-	 * Forced Data codec_id.
-	 * Demuxing: Set by user.
-	 */
-    data_codec_id:                   Codec_ID,
-
-    /**
-	 * ',' separated list of allowed protocols.
-	 * - encoding: unused
-	 * - decoding: set by user
-	 */
-    protocol_whitelist:              cstring,
 
     /**
 	 * A callback for opening new IO streams.
@@ -4443,40 +4579,13 @@ Format_Context :: struct {
 	 * It will, however, have the same 'opaque' field.
 	 */
     io_open:                         #type proc(
-        ctx: ^Format_Context,
-        pb: ^^IO_Context,
+        ctx: ^AVFormatContext,
+        pb: ^^AVIOContext,
         url: cstring,
         IO_flags: i32,
-        options: ^[^]Dictionary,
+        options: ^[^]AVDictionary,
     ) -> i32,
 
-    /**
-	 * ',' separated list of disallowed protocols.
-	 * - encoding: unused
-	 * - decoding: set by user
-	 */
-    protocol_blacklist:              cstring,
-
-    /**
-	 * The maximum number of streams.
-	 * - encoding: unused
-	 * - decoding: set by user
-	 */
-    max_streams:                     i32,
-
-    /**
-	 * Skip duration calcuation in estimate_timings_from_pts.
-	 * - encoding: unused
-	 * - decoding: set by user
-	 */
-    skip_estimate_duration_from_pts: i32,
-
-    /**
-	 * Maximum number of packets that can be probed
-	 * - encoding: unused
-	 * - decoding: set by user
-	 */
-    max_probe_packets:               i32,
     /**
      * A callback for closing the streams opened with AVFormatContext.io_open().
      *
@@ -4488,7 +4597,176 @@ Format_Context :: struct {
      * @param pb IO context to be closed and freed
      * @return 0 on success, a negative AVERROR code on failure
      */
-    io_close2:                       #type proc(s: ^Format_Context, pb: ^IO_Context) -> i32,
+    io_close2:                       #type proc(s: ^AVFormatContext, pb: ^AVIOContext) -> i32,
+
+    /**
+     * Maximum number of bytes read from input in order to determine stream durations
+     * when using estimate_timings_from_pts in avformat_find_stream_info().
+     * Demuxing only, set by the caller before avformat_find_stream_info().
+     * Can be set to 0 to let avformat choose using a heuristic.
+     *
+     * @see skip_estimate_duration_from_pts
+     */
+    duration_probesize:              i64,
+}
+
+/**
+ * AVStreamGroupTileGrid holds information on how to combine several
+ * independent images on a single canvas for presentation.
+ *
+ * The output should be a @ref AVStreamGroupTileGrid.background "background"
+ * colored @ref AVStreamGroupTileGrid.coded_width "coded_width" x
+ * @ref AVStreamGroupTileGrid.coded_height "coded_height" canvas where a
+ * @ref AVStreamGroupTileGrid.nb_tiles "nb_tiles" amount of tiles are placed in
+ * the order they appear in the @ref AVStreamGroupTileGrid.offsets "offsets"
+ * array, at the exact offset described for them. In particular, if two or more
+ * tiles overlap, the image with higher index in the
+ * @ref AVStreamGroupTileGrid.offsets "offsets" array takes priority.
+ * Note that a single image may be used multiple times, i.e. multiple entries
+ * in @ref AVStreamGroupTileGrid.offsets "offsets" may have the same value of
+ * idx.
+ *
+ * The following is an example of a simple grid with 3 rows and 4 columns:
+ *
+ * +---+---+---+---+
+ * | 0 | 1 | 2 | 3 |
+ * +---+---+---+---+
+ * | 4 | 5 | 6 | 7 |
+ * +---+---+---+---+
+ * | 8 | 9 |10 |11 |
+ * +---+---+---+---+
+ *
+ * Assuming all tiles have a dimension of 512x512, the
+ * @ref AVStreamGroupTileGrid.offsets "offset" of the topleft pixel of
+ * the first @ref AVStreamGroup.streams "stream" in the group is "0,0", the
+ * @ref AVStreamGroupTileGrid.offsets "offset" of the topleft pixel of
+ * the second @ref AVStreamGroup.streams "stream" in the group is "512,0", the
+ * @ref AVStreamGroupTileGrid.offsets "offset" of the topleft pixel of
+ * the fifth @ref AVStreamGroup.streams "stream" in the group is "0,512", the
+ * @ref AVStreamGroupTileGrid.offsets "offset", of the topleft pixel of
+ * the sixth @ref AVStreamGroup.streams "stream" in the group is "512,512",
+ * etc.
+ *
+ * The following is an example of a canvas with overlaping tiles:
+ *
+ * +-----------+
+ * |   %%%%%   |
+ * |***%%3%%@@@|
+ * |**0%%%%%2@@|
+ * |***##1@@@@@|
+ * |   #####   |
+ * +-----------+
+ *
+ * Assuming a canvas with size 1024x1024 and all tiles with a dimension of
+ * 512x512, a possible @ref AVStreamGroupTileGrid.offsets "offset" for the
+ * topleft pixel of the first @ref AVStreamGroup.streams "stream" in the group
+ * would be 0x256, the @ref AVStreamGroupTileGrid.offsets "offset" for the
+ * topleft pixel of the second @ref AVStreamGroup.streams "stream" in the group
+ * would be 256x512, the @ref AVStreamGroupTileGrid.offsets "offset" for the
+ * topleft pixel of the third @ref AVStreamGroup.streams "stream" in the group
+ * would be 512x256, and the @ref AVStreamGroupTileGrid.offsets "offset" for
+ * the topleft pixel of the fourth @ref AVStreamGroup.streams "stream" in the
+ * group would be 256x0.
+ *
+ * sizeof(AVStreamGroupTileGrid) is not a part of the ABI and may only be
+ * allocated by avformat_stream_group_create().
+ */
+AVStreamGroupTileGrid :: struct {
+    av_class:          ^AVClass,
+
+    /**
+     * Amount of tiles in the grid.
+     *
+     * Must be > 0.
+     */
+    nb_tiles:          u32,
+
+    /**
+     * Width of the canvas.
+     *
+     * Must be > 0.
+     */
+    coded_width:       i32,
+    /**
+     * Width of the canvas.
+     *
+     * Must be > 0.
+     */
+    coded_height:      i32,
+
+    /**
+     * An @ref nb_tiles sized array of offsets in pixels from the topleft edge
+     * of the canvas, indicating where each stream should be placed.
+     * It must be allocated with the av_malloc() family of functions.
+     *
+     * - demuxing: set by libavformat, must not be modified by the caller.
+     * - muxing: set by the caller before avformat_write_header().
+     *
+     * Freed by libavformat in avformat_free_context().
+     */
+    offsets:           ^struct {
+        /**
+         * Index of the stream in the group this tile references.
+         *
+         * Must be < @ref AVStreamGroup.nb_streams "nb_streams".
+         */
+        idx:        u32,
+        /**
+         * Offset in pixels from the left edge of the canvas where the tile
+         * should be placed.
+         */
+        horizontal: i32,
+        /**
+         * Offset in pixels from the top edge of the canvas where the tile
+         * should be placed.
+         */
+        vertical:   i32,
+    },
+
+    /**
+     * The pixel value per channel in RGBA format used if no pixel of any tile
+     * is located at a particular pixel location.
+     *
+     * @see av_image_fill_color().
+     * @see av_parse_color().
+     */
+    background:        [4]u8,
+
+    /**
+     * Offset in pixels from the left edge of the canvas where the actual image
+     * meant for presentation starts.
+     *
+     * This field must be >= 0 and < @ref coded_width.
+     */
+    horizontal_offset: i32,
+    /**
+     * Offset in pixels from the top edge of the canvas where the actual image
+     * meant for presentation starts.
+    *
+    * This field must be >= 0 and < @ref coded_height.
+    */
+    vertical_offset:   i32,
+
+    /**
+     * Width of the final image for presentation.
+     *
+     * Must be > 0 and <= (@ref coded_width - @ref horizontal_offset).
+     * When it's not equal to (@ref coded_width - @ref horizontal_offset), the
+     * result of (@ref coded_width - width - @ref horizontal_offset) is the
+     * amount amount of pixels to be cropped from the right edge of the
+     * final image before presentation.
+     */
+    width:             i32,
+    /**
+     * Height of the final image for presentation.
+     *
+     * Must be > 0 and <= (@ref coded_height - @ref vertical_offset).
+     * When it's not equal to (@ref coded_height - @ref vertical_offset), the
+     * result of (@ref coded_height - height - @ref vertical_offset) is the
+     * amount amount of pixels to be cropped from the bottom edge of the
+     * final image before presentation.
+     */
+    height:            i32,
 }
 
 Stream_Parse_Type :: enum i32 {
@@ -4519,7 +4797,7 @@ Index_Entry :: struct {
     min_distance: i32, /**< Minimum distance between this and the previous keyframe, used to avoid unneeded searching. */
 }
 
-Disposition_Flag :: enum i32 {
+AVDispositionFlag :: enum i32 {
     Default          = 0,
     Dub              = 1,
     Original         = 2,
@@ -4567,7 +4845,7 @@ Disposition_Flag :: enum i32 {
     Dependent        = 19, ///< dependent audio stream (mix_type=0 in mpegts)
     Still_Image      = 20, ///< still images in video stream (still_picture_flag=1 in mpegts)
 }
-Disposition_Flags :: bit_set[Disposition_Flag;i32]
+AVDispositionFlags :: bit_set[AVDispositionFlag;i32]
 
 /*
 	Options for behavior on timestamp wrap detection.
@@ -4578,22 +4856,22 @@ Timestamp_Wrap :: enum i32 {
     Sub_offset = -1, ///< subtract the format specific offset on wrap detection
 }
 
-Event_Flag :: enum i32 {
+AVEventFlag :: enum i32 {
     /**
-	 * - demuxing: the demuxer read new metadata from the file and updated
-	 *     AVStream.metadata accordingly
-	 * - muxing: the user updated AVStream.metadata and wishes the muxer to write
-	 *     it into the file
-	 */
-    Metadata_Updated = 0,
+ * - demuxing: the demuxer read new metadata from the file and updated
+ *     AVStream.metadata accordingly
+ * - muxing: the user updated AVStream.metadata and wishes the muxer to write
+ *     it into the file
+ */
+    MetadataUpdated = 1,
     /**
 	 * - demuxing: new packets for this stream were read from the file. This
 	 *   event is informational only and does not guarantee that new packets
 	 *   for this stream will necessarily be returned from av_read_frame().
 	 */
-    New_Packets      = 1,
+    NewPackets      = 2,
 }
-Event_Flags :: bit_set[Event_Flag;i32]
+AVEventFlags :: bit_set[AVEventFlag;i32]
 /**
  * Stream structure.
  * New fields can be added to the end with minor version bumps.
@@ -4601,8 +4879,11 @@ Event_Flags :: bit_set[Event_Flag;i32]
  * version bump.
  * sizeof(AVStream) must not be used outside libav*.
  */
-Stream :: struct {
-    class:               ^Class,
+AVStream :: struct {
+    /**
+* A class for @ref avoptions. Set on stream creation.
+*/
+    class:               ^AVClass,
     index:               i32, /**< stream index in `Format_Context` */
     /*
 	 * Format-specific stream ID.
@@ -4610,7 +4891,7 @@ Stream :: struct {
 	 * encoding: set by the user, replaced by libavformat if left unset
 	 */
     id:                  i32,
-    codecpar:            ^Codec_Parameters,
+    codecpar:            ^AVCodecParameters,
     priv_data:           rawptr,
 
     /**
@@ -4625,7 +4906,7 @@ Stream :: struct {
 	 *           written into the file (which may or may not be related to the
 	 *           user-provided one, depending on the format).
 	 */
-    time_base:           Rational,
+    time_base:           AVRational,
 
     /**
 	 * Decoding: pts of the first frame of the stream in presentation order, in stream time base.
@@ -4647,16 +4928,16 @@ Stream :: struct {
 	 */
     duration:            i64,
     nb_frames:           i64, ///< number of frames in this stream if known or 0
-    disposition:         Disposition_Flags, /**< AV_DISPOSITION_* bit field */
-    discard:             Discard, ///< Selects which packets can be discarded at will and do not need to be demuxed.
+    disposition:         AVDispositionFlags, /**< AV_DISPOSITION_* bit field */
+    discard:             AVDiscard, ///< Selects which packets can be discarded at will and do not need to be demuxed.
 
     /**
 	 * sample aspect ratio (0 if unknown)
 	 * - encoding: Set by user.
 	 * - decoding: Set by libavformat.
 	 */
-    sample_aspect_ratio: Rational,
-    metadata:            ^Dictionary,
+    sample_aspect_ratio: AVRational,
+    metadata:            ^AVDictionary,
 
     /**
 	 * Average framerate
@@ -4665,7 +4946,7 @@ Stream :: struct {
 	 *             avformat_find_stream_info().
 	 * - muxing: May be set by the caller before avformat_write_header().
 	 */
-    avg_frame_rate:      Rational,
+    avg_frame_rate:      AVRational,
 
     /**
 	 * For streams with AV_DISPOSITION_ATTACHED_PIC disposition, this packet
@@ -4674,11 +4955,12 @@ Stream :: struct {
 	 * decoding: set by libavformat, must not be modified by the caller.
 	 * encoding: unused
 	 */
-    attached_pic:        Packet,
+    attached_pic:        AVPacket,
 
-    //deprecated! Still think I need to include this
+    // deprecated: Still think I need to include this
     // to pad out the struct correctly.
-    side_data:           ^Packet_Side_Data,
+    side_data:           ^AVPacketSideData,
+    // deprecated
     nb_side_data:        i32,
 
 
@@ -4693,7 +4975,7 @@ Stream :: struct {
 	 *   indicate a user-triggered event.  The muxer will clear the flags for
 	 *   events it has handled in av_[interleaved]_write_frame().
 	 */
-    event_flags:         Event_Flags,
+    event_flags:         AVEventFlags,
 
     /**
 	 * Real base framerate of the stream.
@@ -4703,7 +4985,7 @@ Stream :: struct {
 	 * For example, if the time base is 1/90000 and all frames have either
 	 * approximately 3600 or 1800 timer ticks, then r_frame_rate will be 50/1.
 	 */
-    r_frame_rate:        Rational,
+    r_frame_rate:        AVRational,
     pts_wrap_bits:       i32,
 }
 
@@ -4731,12 +5013,12 @@ Packet_Flag :: enum i32 {
 }
 Packet_Flags :: bit_set[Packet_Flag;i32]
 
-Packet :: struct {
+AVPacket :: struct {
     /**
-	 * A reference to the reference-counted buffer where the packet data is
-	 * stored.
-	 * May be NULL, then the packet data is not reference-counted.
-	 */
+ * A reference to the reference-counted buffer where the packet data is
+ * stored.
+ * May be NULL, then the packet data is not reference-counted.
+ */
     buf:             ^Buffer_Ref,
 
     /**
@@ -4768,7 +5050,7 @@ Packet :: struct {
 	 * Additional packet data that can be provided by the container.
 	 * Packet can contain several types of side information.
 	 */
-    side_data:       [^]Packet_Side_Data,
+    side_data:       [^]AVPacketSideData,
     side_data_elems: i32,
 
     /**
@@ -4779,7 +5061,7 @@ Packet :: struct {
     pos:             i64, ///< byte position in stream, -1 if unknown
     _opaque:         rawptr,
     opaque_ref:      ^Buffer_Ref,
-    time_base:       Rational,
+    time_base:       AVRational,
 }
 
 
@@ -4796,10 +5078,10 @@ Side_Data_Param_Change_Flags :: enum i32 {
  */
 Packet_Side_Data_Type :: enum i32 {
     /**
-	 * An PALETTE side data packet contains exactly AVPALETTE_SIZE
-	 * bytes worth of palette. This side data signals that a new palette is
-	 * present.
-	 */
+ * An PALETTE side data packet contains exactly AVPALETTE_SIZE
+ * bytes worth of palette. This side data signals that a new palette is
+ * present.
+ */
     Palette,
 
     /**
@@ -5058,7 +5340,7 @@ Packet_Side_Data_Type :: enum i32 {
     Not_Part_of_ABI,
 }
 
-Packet_Side_Data :: struct {
+AVPacketSideData :: struct {
     data: [^]u8,
     size: i32,
     type: Packet_Side_Data_Type,
@@ -5082,15 +5364,15 @@ Field_Order :: enum i32 {
  * be allocated with avcodec_parameters_alloc() and freed with
  * avcodec_parameters_free().
  */
-Codec_Parameters :: struct {
+AVCodecParameters :: struct {
     /**
-	 * General type of the encoded data.
-	 */
-    codec_type:            Media_Type,
+ * General type of the encoded data.
+ */
+    codec_type:            AVMediaType,
     /**
 	 * Specific type of the encoded data (the codec used).
 	 */
-    codec_id:              Codec_ID,
+    codec_id:              AVCodecID,
     /**
 	 * Additional information about the codec (corresponds to the AVI FOURCC).
 	 */
@@ -5169,7 +5451,7 @@ Codec_Parameters :: struct {
 	 * When the aspect ratio is unknown / undefined, the numerator should be
 	 * set to 0 (the denominator may have any value).
 	 */
-    sample_aspect_ratio:   Rational,
+    sample_aspect_ratio:   AVRational,
 
     /**
 	 * Video only. The order of the fields in interlaced video.
@@ -5239,7 +5521,7 @@ Codec_Parameters :: struct {
 	  * timestamps, when available. It should thus be used only as a last resort,
 	  * when no higher-level timing information is available.
 	  */
-    framerate:             Rational,
+    framerate:             AVRational,
 
     /**
 	  * Additional data associated with the entire stream.
@@ -5247,7 +5529,7 @@ Codec_Parameters :: struct {
 	  * Should be allocated with av_packet_side_data_new() or
 	  * av_packet_side_data_add(), and will be freed by avcodec_parameters_free().
 	  */
-    coded_side_data:       ^Packet_Side_Data,
+    coded_side_data:       ^AVPacketSideData,
 
     /**
 	  * Amount of entries in @ref coded_side_data.
@@ -5261,13 +5543,13 @@ Codec_Parameters :: struct {
  * version bump.
  * size_of(Program) must not be used outside libav*.
  */
-Program :: struct {
+AVProgram :: struct {
     id:                 i32,
     flags:              i32,
-    discard:            Discard,
+    discard:            AVDiscard,
     stream_index:       [^]u32,
     nb_stream_indexes:  u32,
-    metadata:           ^Dictionary,
+    metadata:           ^AVDictionary,
     program_num:        i32,
     pmt_pid:            i32,
     pcr_pid:            i32,
@@ -5294,12 +5576,12 @@ FMT_CTX_UNSEEKABLE :: 0x0002/**< signal that the stream is definitely
 							   network protocols (e.g. HLS), this can
 							   change dynamically at runtime. */
 
-Chapter :: struct {
+AVChapter :: struct {
     id:        i64, ///< unique ID to identify the chapter
-    time_base: Rational, ///< time base in which the start/end timestamps are specified
+    time_base: AVRational, ///< time base in which the start/end timestamps are specified
     start:     i64,
     end:       i64, ///< chapter start/end time in time_base units
-    metadata:  ^Dictionary,
+    metadata:  ^AVDictionary,
 }
 
 SEEK_FLAG_BACKWARD :: 1 ///< seek backward
@@ -5425,15 +5707,15 @@ AES :: struct {}
 
 Ambient_Viewing_Environment :: struct {
     //Environmental illuminance of the ambient viewing environment in lux.
-    ambient_illuminance: Rational,
+    ambient_illuminance: AVRational,
 
     /**
      * Normalized x,y chromaticity coordinate of the environmental ambient light
      * in the nominal viewing environment according to the CIE 1931 definition
      * of x and y as specified in ISO/CIE 11664-1.
      */
-    ambient_light_x:     Rational,
-    ambient_light_y:     Rational,
+    ambient_light_x:     AVRational,
+    ambient_light_y:     AVRational,
 }
 
 //===audio_fifo.h===
@@ -5459,8 +5741,8 @@ Buffer_Flags :: bit_set[Buffer_Flag;u32]
 
 Buffer_Flag_Internal :: enum u32 {
     /**
-	 * The buffer was av_realloc()ed, so it is reallocatable.
-	 */
+ * The buffer was av_realloc()ed, so it is reallocatable.
+ */
     Reallocatable = 0,
     /**
 	 * The AVBuffer structure is part of a larger structure
@@ -5764,11 +6046,11 @@ CRC_Id :: enum i32 {
 
 //===csp.h===
 Luma_Coefficients :: struct {
-    cr, cg, cb: Rational,
+    cr, cg, cb: AVRational,
 }
 
 CIE_xy :: struct {
-    x, y: Rational,
+    x, y: AVRational,
 }
 
 Primary_Coefficients :: struct {
@@ -5797,10 +6079,10 @@ NUM_DETECTION_BBOX_CLASSIFY :: 4
 Detection_Bounding_Box :: struct {
     x, y, w, h:           i32,
     detect_label:         [DETECTION_BBOX_LABEL_NAME_MAX_SIZE]byte,
-    detect_confidence:    Rational,
+    detect_confidence:    AVRational,
     classify_count:       u32,
     classify_labels:      [NUM_DETECTION_BBOX_CLASSIFY][DETECTION_BBOX_LABEL_NAME_MAX_SIZE]byte,
-    classify_confidences: [NUM_DETECTION_BBOX_CLASSIFY]Rational,
+    classify_confidences: [NUM_DETECTION_BBOX_CLASSIFY]AVRational,
 }
 
 Detection_Bounding_Box_Header :: struct {
@@ -5827,7 +6109,7 @@ Dictionary_Entry :: struct {
     key:   cstring,
     value: cstring,
 }
-Dictionary :: struct {}
+AVDictionary :: struct {}
 /* Not present in dict.h??
 Dictionary :: struct {
 	count:    u32,
@@ -5909,9 +6191,9 @@ DOVI_Data_Mapping :: struct {
 DOVI_Color_Metadata :: struct {
     dm_metadata_id:         u8,
     scene_refresh_flag:     u8,
-    ycc_to_rgb_matrix:      [9]Rational, /* before PQ linearization */
-    ycc_to_rgb_offset:      [3]Rational, /* input offset of neutral value */
-    rgb_to_lms_matrix:      [9]Rational, /* after PQ linearization */
+    ycc_to_rgb_matrix:      [9]AVRational, /* before PQ linearization */
+    ycc_to_rgb_offset:      [3]AVRational, /* input offset of neutral value */
+    rgb_to_lms_matrix:      [9]AVRational, /* after PQ linearization */
     signal_eotf:            u16,
     signal_eotf_param0:     u16,
     signal_eotf_param1:     u16,
@@ -6011,10 +6293,10 @@ Encryption_Info :: struct {
  */
 Encryption_Init_Info :: struct {
     /**
-     * A unique identifier for the key system this is for, can be NULL if it
-     * is not known.  This should always be 16 bytes, but may change in the
-     * future.
-     */
+ * A unique identifier for the key system this is for, can be NULL if it
+ * is not known.  This should always be 16 bytes, but may change in the
+ * future.
+ */
     system_id:      [^]u8,
     system_id_size: u32,
 
@@ -6198,7 +6480,7 @@ Frame_Side_Data :: struct {
     type:     Frame_Side_Data_Type,
     data:     [^]u8,
     size:     uint,
-    metadata: ^Dictionary,
+    metadata: ^AVDictionary,
     buffer:   ^Buffer_Ref,
 }
 
@@ -6217,9 +6499,9 @@ Frame_Flags :: bit_set[Frame_Flag;i32]
 
 Region_of_Interest :: struct {
     /**
-	 * Must be set to the size of this data structure (that is,
-	 * size_of(Region_of_Interest)).
-	 */
+ * Must be set to the size of this data structure (that is,
+ * size_of(Region_of_Interest)).
+ */
     self_size: u32,
 
     /**
@@ -6234,15 +6516,15 @@ Region_of_Interest :: struct {
     /**
 	  * Quantisation offset.
 	  *	  */
-    q_offet:   Rational,
+    q_offet:   AVRational,
 }
 
 
 Frame :: struct {
     /**
-	 * pointer to the picture/channel planes.
-	 * This might be different from the first allocated byte
-	 *	 */
+ * pointer to the picture/channel planes.
+ * This might be different from the first allocated byte
+ *	 */
     data:                  [NUM_DATA_POINTERS][^]u8,
 
     /**
@@ -6285,7 +6567,7 @@ Frame :: struct {
     /**
 	 * Sample aspect ratio for the video frame, 0/1 if unknown/unspecified.
 	 */
-    sample_aspect_ratio:   Rational,
+    sample_aspect_ratio:   AVRational,
 
     /**
 	 * Presentation timestamp in time_base units (time when frame should be shown to user).
@@ -6300,7 +6582,7 @@ _Base	 */
     pkt_dts:               i64,
 
     /* Time base for the timestamps in this frame. */
-    time_base:             Rational,
+    time_base:             AVRational,
     /**
 	 * quality (between 1 (good) and FF_LAMBDA_MAX (bad))
 	 */
@@ -6370,7 +6652,7 @@ _Base	 */
     /**
 	 * metadata.
 	 */
-    metadata:              ^Dictionary,
+    metadata:              ^AVDictionary,
 
     /**
 	 * decode error flags of the frame, set to a combination of
@@ -6432,14 +6714,14 @@ HDR_Plus_Overlap_Process_Option :: enum i32 {
 
 HDR_Plus_Percentile :: struct {
     percentage: u8,
-    percentile: Rational,
+    percentile: AVRational,
 }
 
 HDR_Plus_Color_Transform_Params :: struct {
-    window_upper_left_corner_x:          Rational,
-    window_upper_left_corner_y:          Rational,
-    window_lower_right_corner_x:         Rational,
-    window_lower_right_corner_y:         Rational,
+    window_upper_left_corner_x:          AVRational,
+    window_upper_left_corner_y:          AVRational,
+    window_lower_right_corner_x:         AVRational,
+    window_lower_right_corner_y:         AVRational,
     center_of_ellipse_x:                 u16,
     center_of_ellipse_y:                 u16,
     rotation_angle:                      u8,
@@ -6447,18 +6729,18 @@ HDR_Plus_Color_Transform_Params :: struct {
     semimajor_axis_external_ellipse:     u16,
     semiminor_axis_external_ellipse:     u16,
     overlap_process_option:              HDR_Plus_Overlap_Process_Option,
-    maxscl:                              [3]Rational,
-    average_maxrgb:                      Rational,
+    maxscl:                              [3]AVRational,
+    average_maxrgb:                      AVRational,
     num_distribution_maxrgb_percentiles: u8,
     distribution_maxrgb:                 [15]HDR_Plus_Percentile,
-    fraction_bright_pixels:              Rational,
+    fraction_bright_pixels:              AVRational,
     tone_mapping_flag:                   u8,
-    knee_point_x:                        Rational,
-    knee_point_y:                        Rational,
+    knee_point_x:                        AVRational,
+    knee_point_y:                        AVRational,
     num_bezier_curve_anchors:            u8,
-    bezier_curve_anchors:                [15]Rational,
+    bezier_curve_anchors:                [15]AVRational,
     color_saturation_mapping_flag:       u8,
-    color_saturation_weight:             Rational,
+    color_saturation_weight:             AVRational,
 }
 
 Dynamic_HDR_Plus :: struct {
@@ -6466,57 +6748,57 @@ Dynamic_HDR_Plus :: struct {
     application_version:                                    u8,
     num_windows:                                            u8,
     params:                                                 [3]HDR_Plus_Color_Transform_Params,
-    targeted_system_display_maximum_luminance:              Rational,
+    targeted_system_display_maximum_luminance:              AVRational,
     targeted_system_display_actual_peak_luminance_flag:     u8,
     num_rows_targeted_system_display_actual_peak_luminance: u8,
     num_cols_targeted_system_display_actual_peak_luminance: u8,
-    targeted_system_display_actual_peak_luminance:          [25][25]Rational,
+    targeted_system_display_actual_peak_luminance:          [25][25]AVRational,
     mastering_display_actual_peak_luminance_flag:           u8,
     num_rows_mastering_display_actual_peak_luminance:       u8,
     num_cols_mastering_display_actual_peak_luminance:       u8,
-    mastering_display_actual_peak_luminance:                [25][25]Rational,
+    mastering_display_actual_peak_luminance:                [25][25]AVRational,
 }
 
 
 //===hdr_dynamic_vivid_metadata.h===
 HDR_Vivid_3_Spline_Params :: struct {
     th_mode:         i32,
-    th_enable_mb:    Rational,
-    th_enable:       Rational,
-    th_delta1:       Rational,
-    th_delta2:       Rational,
-    enable_strength: Rational,
+    th_enable_mb:    AVRational,
+    th_enable:       AVRational,
+    th_delta1:       AVRational,
+    th_delta2:       AVRational,
+    enable_strength: AVRational,
 }
 
 HDR_Vivid_Color_ToneMapping_Params :: struct {
-    targeted_system_display_maximum_luminance: Rational,
+    targeted_system_display_maximum_luminance: AVRational,
     base_enable_flag:                          i32,
-    base_param_m_p:                            Rational,
-    base_param_m_m:                            Rational,
-    base_param_m_a:                            Rational,
-    base_param_m_b:                            Rational,
-    base_param_m_n:                            Rational,
+    base_param_m_p:                            AVRational,
+    base_param_m_m:                            AVRational,
+    base_param_m_a:                            AVRational,
+    base_param_m_b:                            AVRational,
+    base_param_m_n:                            AVRational,
     base_param_k1:                             i32,
     base_param_k2:                             i32,
     base_param_k3:                             i32,
     base_param_Delta_enable_mode:              i32,
-    base_param_Delta:                          Rational,
+    base_param_Delta:                          AVRational,
     three_Spline_enable_flag:                  i32,
     three_Spline_num:                          i32,
     three_spline:                              [2]HDR_Vivid_3_Spline_Params,
 }
 
 HDR_Vivid_Color_Transform_Params :: struct {
-    minimum_maxrgb:                Rational,
-    average_maxrgb:                Rational,
-    variance_maxrgb:               Rational,
-    maximum_maxrgb:                Rational,
+    minimum_maxrgb:                AVRational,
+    average_maxrgb:                AVRational,
+    variance_maxrgb:               AVRational,
+    maximum_maxrgb:                AVRational,
     tone_mapping_mode_flag:        i32,
     tone_mapping_param_num:        i32,
     tm_params:                     [2]HDR_Vivid_Color_ToneMapping_Params,
     color_saturation_mapping_flag: i32,
     color_saturation_num:          i32,
-    color_saturation_gain:         [8]Rational,
+    color_saturation_gain:         [8]AVRational,
 }
 
 Dynamic_HDR_Vivid :: struct {
@@ -6557,7 +6839,7 @@ HW_Device_Type :: enum i32 {
 Hardware_Device_Internal :: struct {}
 
 Hardware_Device_Context :: struct {
-    class:       ^Class,
+    class:       ^AVClass,
     internal:    ^Hardware_Device_Internal,
     type:        Hardware_Device_Type,
     hwctx:       rawptr,
@@ -6568,7 +6850,7 @@ Hardware_Device_Context :: struct {
 Hardware_Frames_Internal :: struct {}
 
 Hardware_Frames_Context :: struct {
-    av_class:          ^Class,
+    av_class:          ^AVClass,
     internal:          ^Hardware_Frames_Internal,
     device_ref:        ^Buffer_Ref,
     device_ctx:        ^Hardware_Device_Context,
@@ -6635,11 +6917,11 @@ Class_Category :: enum i32 {
 }
 
 
-Class :: struct {
+AVClass :: struct {
     class_name:                cstring,
     item_name:                 #type proc(ctx: rawptr) -> cstring,
     option:                    ^Option,
-    av_util_verion:            i32,
+    version:                   i32,
     log_level_offset_offset:   i32,
     parent_log_context_offset: i32,
     category:                  Class_Category,
@@ -6651,7 +6933,7 @@ Class :: struct {
         flags: Option_Flags,
     ) -> i32,
     child_next:                #type proc(obj: rawptr, prev: rawptr) -> rawptr,
-    child_class_iterate:       #type proc(iter: ^rawptr) -> ^Class,
+    child_class_iterate:       #type proc(iter: ^rawptr) -> ^AVClass,
 }
 
 
@@ -6679,10 +6961,10 @@ LZO_Decode_Flags :: bit_set[LZO_Decode_Flag;i32]
 
 //===mastering_display_metadata.h===
 Mastering_Display_Metadata :: struct {
-    display_primaries: [3][2]Rational,
-    white_point:       [2]Rational,
-    min_luminance:     Rational,
-    max_luminance:     Rational,
+    display_primaries: [3][2]AVRational,
+    white_point:       [2]AVRational,
+    min_luminance:     AVRational,
+    max_luminance:     AVRational,
     has_primaries:     i32,
     has_luminance:     i32,
 }
@@ -6771,7 +7053,7 @@ Option :: struct {
         int_64: i64,
         dbl:    f64,
         str:    cstring,
-        q:      Rational,
+        q:      AVRational,
     },
     min:           f64,
     max:           f64,
@@ -7557,7 +7839,7 @@ Chroma_Location :: enum i32 {
 
 
 //===rational.h===
-Rational :: struct {
+AVRational :: struct {
     numerator:   i32,
     denominator: i32,
 }
@@ -7673,7 +7955,7 @@ Timecode_Flags :: bit_set[Timecode_Flag;u32]
 Timecode :: struct {
     start: i32, // timecode frame start (first base frame number)
     flags: Timecode_Flags, // flags such as drop frame, +24 hours support, ...
-    rate:  Rational, // frame rate in rational form
+    rate:  AVRational, // frame rate in rational form
     fps:   u32, // frame per second; must be consistent with the rate field
 }
 
@@ -7780,7 +8062,7 @@ XTEA :: struct {
 
 //Below structs are not put under their correct file.
 
-Media_Type :: enum i32 {
+AVMediaType :: enum i32 {
     Unknown = -1,
     Video,
     Audio,
@@ -7800,7 +8082,7 @@ FF_QUALITY_SCALE :: FF_LAMBDA_SCALE
 NOPTS_VALUE :: 0x8000000000000000
 TIME_BASE :: 1000000
 
-TIME_BASE_Q :: Rational{1, TIME_BASE}
+TIME_BASE_Q :: AVRational{1, TIME_BASE}
 
 Picture_Type :: enum i32 {
     NONE = 0,
@@ -7842,11 +8124,11 @@ DV_Profile :: struct {
     frame_size:         i32, // total size of one frame in bytes
     difseg_size:        i32, // number of DIF segments per DIF channel
     n_difchan:          i32, // number of DIF channels per frame
-    time_base:          Rational, // 1/framerate
+    time_base:          AVRational, // 1/framerate
     ltc_divisor:        i32, // FPS from the LTS standpoint
     height:             i32, // picture height in pixels
     width:              i32, // picture width in pixels
-    sar:                [2]Rational, // sample aspect ratios for 4:3 and 16:9
+    sar:                [2]AVRational, // sample aspect ratios for 4:3 and 16:9
     pix_fmt:            Pixel_Format, // picture pixel format
     bpm:                i32, // blocks per macroblock
     block_sizes:        []u8, // AC block sizes, in bits
@@ -8056,7 +8338,7 @@ Options_Context :: struct {
     audio_disable:                  i32,
     subtitle_disable:               i32,
     data_disable:                   i32,
-    streamid:                       ^Dictionary,
+    streamid:                       ^AVDictionary,
     metadata:                       [^]Specifier_Opt,
     nb_metadata:                    i32,
     max_frames:                     [^]Specifier_Opt,
@@ -8161,14 +8443,14 @@ Output_Filter :: struct {
     graph:          ^Filter_Graph,
     name:           cstring,
     linkelabel:     cstring,
-    type:           Media_Type,
+    type:           AVMediaType,
     last_pts:       i64,
     nb_frames_dub:  u64,
     nb_frames_drop: u64,
 }
 
 FF_Filter_Graph :: struct {
-    class:      ^Class,
+    class:      ^AVClass,
     index:      i32,
     graph:      ^Filter_Graph,
     inputs:     ^[^]Input_Filter,
@@ -8182,21 +8464,21 @@ Decoder :: struct {}
 
 Input_Stream :: struct {
     // done!
-    class:                 ^Class,
+    class:                 ^AVClass,
     file_index:            i32,
     index:                 i32,
-    st:                    ^Stream,
+    st:                    ^AVStream,
     discard:               i32,
     user_set_discard:      i32,
     decoding_needed:       i32,
-    par:                   ^Codec_Parameters,
+    par:                   ^AVCodecParameters,
     decoder:               Decoder,
-    dec_ctx:               ^Codec_Context,
-    dec:                   ^Codec,
+    dec_ctx:               ^AVCodec_Context,
+    dec:                   ^AVCodec,
     codec_desc:            ^Codec_Descriptor,
-    framerate_guessed:     Rational,
-    decoder_opts:          [^]Dictionary,
-    framerate:             Rational,
+    framerate_guessed:     AVRational,
+    decoder_opts:          [^]AVDictionary,
+    framerate:             AVRational,
     autorotate:            i32,
     fix_sub_duration:      i32,
     sub2video:             struct {
@@ -8219,10 +8501,10 @@ Input_Stream :: struct {
 
 Input_File :: struct {
     // done!
-    class:                ^Class,
+    class:                ^AVClass,
     index:                i32,
     format_nots:          i32,
-    ctx:                  ^Format_Context,
+    ctx:                  ^AVFormatContext,
     eof_reached:          b32,
     e_again:              b32,
     input_ts_offset:      i64,
@@ -8280,7 +8562,7 @@ Enc_Stats_Component :: struct {
 Enc_Stats :: struct {
     components:    [^]Enc_Stats_Component,
     nb_components: i32,
-    io:            ^IO_Context,
+    io:            ^AVIOContext,
 }
 
 
@@ -8305,30 +8587,30 @@ Encoder :: struct {}
 
 
 Output_Stream :: struct {
-    class:                      ^Class,
-    type:                       Media_Type,
+    class:                      ^AVClass,
+    type:                       AVMediaType,
     file_index:                 i32,
     index:                      i32,
-    par_in:                     ^Codec_Parameters,
+    par_in:                     ^AVCodecParameters,
     ist:                        ^Input_Stream,
-    st:                         ^Stream,
+    st:                         ^AVStream,
     last_mux_dts:               i64,
-    enc_timebase:               Rational,
+    enc_timebase:               AVRational,
     enc:                        ^Encoder,
-    enc_ctx:                    ^Codec_Context,
-    frame_rate:                 Rational,
-    max_frame_rate:             Rational,
+    enc_ctx:                    ^AVCodec_Context,
+    frame_rate:                 AVRational,
+    max_frame_rate:             AVRational,
     vsync_method:               VSync,
     is_cfr:                     i32,
     force_fps:                  i32,
-    frame_aspect_ratio:         Rational,
+    frame_aspect_ratio:         AVRational,
     kf:                         Keyframe_Force_Context,
     logfile_prefix:             cstring,
     logfile:                    ^File,
     filter:                     ^Output_Filter,
-    encoder_opts:               ^Dictionary,
-    sws_dict:                   ^Dictionary,
-    swr_opts:                   ^Dictionary,
+    encoder_opts:               ^AVDictionary,
+    sws_dict:                   ^AVDictionary,
+    swr_opts:                   ^AVDictionary,
     apad:                       cstring,
     finished:                   OST_Finished,
     unavailable:                i32,
@@ -8351,9 +8633,9 @@ Output_Stream :: struct {
 Sync_Queue :: struct {}
 
 Output_File :: struct {
-    class:          ^Class,
+    class:          ^AVClass,
     index:          i32,
-    format:         ^Output_Format,
+    format:         ^AVOutputFormat,
     url:            cstring,
     streams:        ^[^]Output_Stream,
     nb_streams:     i32,
@@ -8368,9 +8650,9 @@ Frame_Data :: struct {
     dec:                 struct {
         frame_num: u64,
         pts:       i64,
-        tb:        Rational,
+        tb:        AVRational,
     },
-    frame_rate_filter:   Rational,
+    frame_rate_filter:   AVRational,
     bits_per_raw_sample: i32,
 }
 
@@ -8502,10 +8784,10 @@ Command_Option_Group :: struct {
     arg:         cstring,
     opts:        ^Option,
     nb_opts:     i32,
-    codec_opts:  ^Dictionary,
-    format_opts: ^Dictionary,
-    sws_dict:    ^Dictionary,
-    swr_opts:    ^Dictionary,
+    codec_opts:  ^AVDictionary,
+    format_opts: ^AVDictionary,
+    sws_dict:    ^AVDictionary,
+    swr_opts:    ^AVDictionary,
 }
 
 Command_Option_Group_List :: struct {

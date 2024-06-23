@@ -34,7 +34,7 @@ foreign swresample {
 @(default_calling_convention = "c", link_prefix = "swr_")
 foreign swresample {
     // Gets the AVClass for Software_Resample_Context
-    get_class :: proc() -> ^types.Class ---
+    get_class :: proc() -> ^types.AVClass ---
 
     // Allocates Software_Resample_Context
     alloc :: proc() -> ^types.Software_Resample_Context ---

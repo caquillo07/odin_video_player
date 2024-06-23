@@ -20,7 +20,7 @@ when ODIN_OS == .Darwin {foreign import avcodec "system:avcodec"}
 */
 @(default_calling_convention = "c")
 foreign avcodec {
-    avcodec_string :: proc(buf: [^]byte, buf_size: i32, enc: ^types.Codec_Context, encode: i32) ---
+    avcodec_string :: proc(buf: [^]byte, buf_size: i32, enc: ^types.AVCodec_Context, encode: i32) ---
 
     /*
 		av_codec_ffversion: cstring
@@ -38,7 +38,7 @@ foreign avcodec {
     //===avdct.h===
     codec_dct_alloc :: proc() -> ^types.DCT ---
     codec_dct_init :: proc(avdct: ^types.DCT) -> i32 ---
-    codec_dct_get_class :: proc() -> ^types.Class ---
+    codec_dct_get_class :: proc() -> ^types.AVClass ---
 }
 /*
 	`avcodec_*` functions, except for `avcodec_string`, because that would conflict with the string type.
@@ -57,61 +57,61 @@ foreign avcodec {
     // Return the libavcodec license.
     license :: proc() -> (license: cstring) ---
 
-    alloc_context3 :: proc(codec: ^types.Codec) -> ^types.Codec_Context ---
-    free_context :: proc(avctx: ^^types.Codec_Context) ---
-    get_class :: proc() -> ^types.Class ---
+    alloc_context3 :: proc(codec: ^types.AVCodec) -> ^types.AVCodec_Context ---
+    free_context :: proc(avctx: ^^types.AVCodec_Context) ---
+    get_class :: proc() -> ^types.AVClass ---
 
-    get_subtitle_rect_class :: proc() -> ^types.Class ---
-    parameters_from_context :: proc(par: ^types.Codec_Parameters, codec: ^types.Codec_Context) -> i32 ---
-    parameters_to_context :: proc(codec: ^types.Codec_Context, par: ^types.Codec_Parameters) -> i32 ---
-    open2 :: proc(avctx: ^types.Codec_Context, codec: ^types.Codec, options: ^^types.Dictionary) -> i32 ---
-    close :: proc(avctx: ^types.Codec_Context) -> i32 ---
-    default_get_buffer2 :: proc(s: ^types.Codec_Context, frame: ^types.Frame, flags: types.Codec_Flags) -> i32 ---
-    default_get_encode_buffer :: proc(s: ^types.Codec_Context, pkt: ^types.Packet, flags: types.Codec_Flags_2) -> i32 ---
-    align_dimensions :: proc(s: ^types.Codec_Context, width: ^i32, height: ^i32) ---
-    align_dimensions2 :: proc(s: ^types.Codec_Context, width: ^i32, height: ^i32, linesize_align: [types.NUM_DATA_POINTERS]int) ---
+    get_subtitle_rect_class :: proc() -> ^types.AVClass ---
+    parameters_from_context :: proc(par: ^types.AVCodecParameters, codec: ^types.AVCodec_Context) -> i32 ---
+    parameters_to_context :: proc(codec: ^types.AVCodec_Context, par: ^types.AVCodecParameters) -> i32 ---
+    open2 :: proc(avctx: ^types.AVCodec_Context, codec: ^types.AVCodec, options: ^^types.AVDictionary) -> i32 ---
+    close :: proc(avctx: ^types.AVCodec_Context) -> i32 ---
+    default_get_buffer2 :: proc(s: ^types.AVCodec_Context, frame: ^types.Frame, flags: types.Codec_Flags) -> i32 ---
+    default_get_encode_buffer :: proc(s: ^types.AVCodec_Context, pkt: ^types.AVPacket, flags: types.Codec_Flags_2) -> i32 ---
+    align_dimensions :: proc(s: ^types.AVCodec_Context, width: ^i32, height: ^i32) ---
+    align_dimensions2 :: proc(s: ^types.AVCodec_Context, width: ^i32, height: ^i32, linesize_align: [types.NUM_DATA_POINTERS]int) ---
     //chroma_location_enum_to_pos :: proc(xpos:^i32, ypos:^i32, pos:types.Chroma_Location)->i32  ---
     //chroma_location_pos_to_enum :: proc(xpos:i32, ypos:i32)->types.Chroma_Location  ---
-    decode_subtitle2 :: proc(avctx: ^types.Codec_Context, sub: ^types.Subtitle, got_sub_ptr: ^i32, avpkt: ^types.Packet) -> i32 ---
-    send_packet :: proc(avctx: ^types.Codec_Context, avpkt: ^types.Packet) -> i32 ---
-    receive_frame :: proc(avctx: ^types.Codec_Context, frame: ^types.Frame) -> i32 ---
-    send_frame :: proc(avctx: ^types.Codec_Context, frame: ^types.Frame) -> i32 ---
-    receive_packet :: proc(avctx: ^types.Codec_Context, avpkt: ^types.Packet) -> i32 ---
-    get_hw_frames_parameters :: proc(avctx: ^types.Codec_Context, device_ref: ^types.Buffer_Ref, hw_pix_fmt: types.Pixel_Format, out_frames_ref: ^^types.Buffer_Ref) -> i32 ---
-    encode_subtitle :: proc(avctx: ^types.Codec_Context, buf: [^]byte, buf_size: i32, sub: ^types.Subtitle) -> i32 ---
+    decode_subtitle2 :: proc(avctx: ^types.AVCodec_Context, sub: ^types.Subtitle, got_sub_ptr: ^i32, avpkt: ^types.AVPacket) -> i32 ---
+    send_packet :: proc(avctx: ^types.AVCodec_Context, avpkt: ^types.AVPacket) -> i32 ---
+    receive_frame :: proc(avctx: ^types.AVCodec_Context, frame: ^types.Frame) -> i32 ---
+    send_frame :: proc(avctx: ^types.AVCodec_Context, frame: ^types.Frame) -> i32 ---
+    receive_packet :: proc(avctx: ^types.AVCodec_Context, avpkt: ^types.AVPacket) -> i32 ---
+    get_hw_frames_parameters :: proc(avctx: ^types.AVCodec_Context, device_ref: ^types.Buffer_Ref, hw_pix_fmt: types.Pixel_Format, out_frames_ref: ^^types.Buffer_Ref) -> i32 ---
+    encode_subtitle :: proc(avctx: ^types.AVCodec_Context, buf: [^]byte, buf_size: i32, sub: ^types.Subtitle) -> i32 ---
     pix_fmt_to_codec_tag :: proc(pix_fmt: types.Pixel_Format) -> u32 ---
     find_best_pix_fmt_of_list :: proc(pix_fmt_list: [^]types.Pixel_Format, src_pix_fmt: types.Pixel_Format, has_alpha: i32, loss_ptr: ^i32) -> types.Pixel_Format ---
-    default_get_format :: proc(s: ^types.Codec_Context, fmt: ^types.Pixel_Format) -> types.Pixel_Format ---
-    default_execute :: proc(c: ^types.Codec_Context, func: proc(c2: ^types.Codec_Context, arg2: rawptr) -> int, arg: rawptr, ret: ^i32, count: i32, size: i32) -> i32 ---
-    default_execute2 :: proc(c: ^types.Codec_Context, func: proc(c2: ^types.Codec_Context, arg2: rawptr, arg3: i32, arg4: i32) -> i32, arg: rawptr, ret: ^i32, count: i32) -> i32 ---
+    default_get_format :: proc(s: ^types.AVCodec_Context, fmt: ^types.Pixel_Format) -> types.Pixel_Format ---
+    default_execute :: proc(c: ^types.AVCodec_Context, func: proc(c2: ^types.AVCodec_Context, arg2: rawptr) -> int, arg: rawptr, ret: ^i32, count: i32, size: i32) -> i32 ---
+    default_execute2 :: proc(c: ^types.AVCodec_Context, func: proc(c2: ^types.AVCodec_Context, arg2: rawptr, arg3: i32, arg4: i32) -> i32, arg: rawptr, ret: ^i32, count: i32) -> i32 ---
     fill_audio_frame :: proc(frame: ^types.Frame, nb_channels: i32, sample_fmt: types.Sample_Format, buf: [^]byte, buf_size: i32, align: i32) -> i32 ---
-    flush_buffers :: proc(avctx: ^types.Codec_Context) ---
+    flush_buffers :: proc(avctx: ^types.AVCodec_Context) ---
 
     //===codec.h===
-    find_decoder :: proc(id: types.Codec_ID) -> ^types.Codec ---
-    find_decoder_by_name :: proc(name: cstring) -> ^types.Codec ---
-    find_encoder :: proc(id: types.Codec_ID) -> ^types.Codec ---
-    find_encoder_by_name :: proc(name: cstring) -> ^types.Codec ---
-    get_hw_config :: proc(codec: ^types.Codec, index: i32) -> ^types.Codec_Hardware_Config ---
+    find_decoder :: proc(id: types.AVCodecID) -> ^types.AVCodec ---
+    find_decoder_by_name :: proc(name: cstring) -> ^types.AVCodec ---
+    find_encoder :: proc(id: types.AVCodecID) -> ^types.AVCodec ---
+    find_encoder_by_name :: proc(name: cstring) -> ^types.AVCodec ---
+    get_hw_config :: proc(codec: ^types.AVCodec, index: i32) -> ^types.Codec_Hardware_Config ---
 
 
     //===codec_desc.h===
-    descriptor_get :: proc(id: types.Codec_ID) -> ^types.Codec_Descriptor ---
+    descriptor_get :: proc(id: types.AVCodecID) -> ^types.Codec_Descriptor ---
     descriptor_next :: proc(prev: ^types.Codec_Descriptor) -> ^types.Codec_Descriptor ---
     descriptor_get_by_name :: proc(name: cstring) -> ^types.Codec_Descriptor ---
 
     //===codec_id.h===
-    get_type :: proc(codec_id: types.Codec_ID) -> types.Media_Type ---
-    get_name :: proc(id: types.Codec_ID) -> cstring ---
-    profile_name :: proc(codec_id: types.Codec_ID, profile: i32) -> cstring ---
+    get_type :: proc(codec_id: types.AVCodecID) -> types.AVMediaType ---
+    get_name :: proc(id: types.AVCodecID) -> cstring ---
+    profile_name :: proc(codec_id: types.AVCodecID, profile: i32) -> cstring ---
 
 
     //===codec_par.h===
-    parameters_alloc :: proc() -> ^types.Codec_Parameters ---
-    parameters_free :: proc(par: ^^types.Codec_Parameters) ---
-    parameters_copy :: proc(dst: ^types.Codec_Parameters, src: ^types.Codec_Parameters) -> i32 ---
+    parameters_alloc :: proc() -> ^types.AVCodecParameters ---
+    parameters_free :: proc(par: ^^types.AVCodecParameters) ---
+    parameters_copy :: proc(dst: ^types.AVCodecParameters, src: ^types.AVCodecParameters) -> i32 ---
 
-    is_open :: proc(s: ^types.Codec_Context) -> i32 ---
+    is_open :: proc(s: ^types.AVCodec_Context) -> i32 ---
 }
 
 
@@ -134,7 +134,7 @@ foreign avcodec {
     //===dv_profile.h===
     dv_frame_profile :: proc(sys: ^types.DV_Profile, frame: [^]byte, buf_size: uint) ---
     dv_codec_profile :: proc(width: i32, height: i32, pix_fmt: types.Pixel_Format) -> ^types.DV_Profile ---
-    dv_codec_profile2 :: proc(width: i32, height: i32, pix_fmt: types.Pixel_Format, frame_rate: types.Rational) -> ^types.DV_Profile ---
+    dv_codec_profile2 :: proc(width: i32, height: i32, pix_fmt: types.Pixel_Format, frame_rate: types.AVRational) -> ^types.DV_Profile ---
 
     //===jni.h===
     jni_set_java_vm :: proc(vm: rawptr, log_ctx: rawptr) -> i32 ---
@@ -142,32 +142,32 @@ foreign avcodec {
 
     //===mediacodec.h===
     mediacodec_alloc_context :: proc() -> ^types.Media_Codec_Context ---
-    mediacodec_default_init :: proc(avctx: ^types.Codec_Context, ctx: ^types.Media_Codec_Context, surface: rawptr) -> i32 ---
-    mediacodec_default_free :: proc(avctx: ^types.Codec_Context) ---
+    mediacodec_default_init :: proc(avctx: ^types.AVCodec_Context, ctx: ^types.Media_Codec_Context, surface: rawptr) -> i32 ---
+    mediacodec_default_free :: proc(avctx: ^types.AVCodec_Context) ---
     mediacodec_release_buffer :: proc(buffer: ^types.Media_Codec_Buffer, render: i32) -> i32 ---
     mediacodec_render_buffer_at_time :: proc(buffer: ^types.Media_Codec_Buffer, time: i64) -> i32 ---
 
     //===avcodec.h===
     parser_iterate :: proc(opaque: ^rawptr) -> ^types.Codec_Parser ---
     parser_init :: proc(codec_id: i32) -> ^types.Codec_Parser_Context ---
-    parser_parse2 :: proc(s: ^types.Codec_Parser_Context, avctx: ^types.Codec_Context, poutbuf: ^[^]byte, poutbuf_size: ^i32, buf: [^]byte, buf_size: i32, pts: i64, dts: i64, pos: i64) -> i32 ---
+    parser_parse2 :: proc(s: ^types.Codec_Parser_Context, avctx: ^types.AVCodec_Context, poutbuf: ^[^]byte, poutbuf_size: ^i32, buf: [^]byte, buf_size: i32, pts: i64, dts: i64, pos: i64) -> i32 ---
     parser_close :: proc(s: ^types.Codec_Parser_Context) ---
 
-    get_audio_frame_duration :: proc(avctx: ^types.Codec_Context, frame_bytes: i32) -> i32 ---
+    get_audio_frame_duration :: proc(avctx: ^types.AVCodec_Context, frame_bytes: i32) -> i32 ---
     fast_padded_malloc :: proc(ptr: rawptr, size: ^u32, min_size: uintptr) ---
     fast_padded_mallocz :: proc(ptr: rawptr, size: ^u32, min_size: uintptr) ---
 
 
     //===codec_id.h===
-    get_bits_per_sample :: proc(codec_id: types.Codec_ID) -> i32 ---
-    get_exact_bits_per_sample :: proc(codec_id: types.Codec_ID) -> i32 ---
-    get_pcm_codec :: proc(fmt: types.Sample_Format, be: i32) -> types.Codec_ID ---
+    get_bits_per_sample :: proc(codec_id: types.AVCodecID) -> i32 ---
+    get_exact_bits_per_sample :: proc(codec_id: types.AVCodecID) -> i32 ---
+    get_pcm_codec :: proc(fmt: types.Sample_Format, be: i32) -> types.AVCodecID ---
 
     //===codec_par.h===
-    get_audio_frame_duration2 :: proc(par: ^types.Codec_Parameters, frame_bytes: i32) -> i32 ---
+    get_audio_frame_duration2 :: proc(par: ^types.AVCodecParameters, frame_bytes: i32) -> i32 ---
 
     //===codec.h===
-    get_profile_name :: proc(codec: ^types.Codec, profile: i32) -> cstring ---
+    get_profile_name :: proc(codec: ^types.AVCodec, profile: i32) -> cstring ---
 
 
 }
@@ -190,16 +190,16 @@ foreign avcodec {
     bsf_iterate :: proc(opaque: ^rawptr) -> ^types.Bit_Stream_Filter ---
     bsf_alloc :: proc(filter: ^types.Bit_Stream_Filter, ctx: ^^types.BSF_Context) -> i32 ---
     bsf_init :: proc(ctx: types.BSF_Context) -> i32 ---
-    bsf_send_packet :: proc(ctx: types.BSF_Context, pkt: ^types.Packet) -> i32 ---
-    bsf_receive_packet :: proc(ctx: types.BSF_Context, pkt: ^types.Packet) -> i32 ---
+    bsf_send_packet :: proc(ctx: types.BSF_Context, pkt: ^types.AVPacket) -> i32 ---
+    bsf_receive_packet :: proc(ctx: types.BSF_Context, pkt: ^types.AVPacket) -> i32 ---
     bsf_flush :: proc(ctx: types.BSF_Context) ---
     bsf_free :: proc(ctx: ^^types.BSF_Context) ---
-    bsf_get_class :: proc() -> ^types.Class ---
+    bsf_get_class :: proc() -> ^types.AVClass ---
 
     bsf_list_alloc :: proc() -> ^types.BSF_List ---
     bsf_list_free :: proc(lst: ^^types.BSF_List) ---
     bsf_list_append :: proc(lst: ^types.BSF_List, bsf: types.BSF_Context) -> i32 ---
-    bsf_list_append2 :: proc(lst: ^types.BSF_List, bsf_name: cstring, options: ^^types.Dictionary) -> i32 ---
+    bsf_list_append2 :: proc(lst: ^types.BSF_List, bsf_name: cstring, options: ^^types.AVDictionary) -> i32 ---
     bsf_list_finalize :: proc(lst: ^^types.BSF_List, bsf: ^^types.BSF_Context) -> i32 ---
     bsf_list_parse_str :: proc(str: cstring, bsf: ^^types.BSF_Context) -> i32 ---
     bsf_get_null_filter :: proc(bsf: ^^types.BSF_Context) -> i32 ---
@@ -208,35 +208,35 @@ foreign avcodec {
 @(default_calling_convention = "c", link_prefix = "av_")
 foreign avcodec {
     //===packet.h===
-    packet_side_data_new :: proc(psd: ^[^]types.Packet_Side_Data, pnb_sd: i32, type: types.Packet_Side_Data_Type, size: uintptr, flags: i32) -> ^types.Packet_Side_Data ---
-    packet_side_data_add :: proc(psd: ^[^]types.Packet_Side_Data, pnb_sd: i32, type: types.Packet_Side_Data_Type, data: rawptr, size: uintptr, flags: i32) -> ^types.Packet_Side_Data ---
-    packet_side_data_get :: proc(psd: [^]types.Packet_Side_Data, pnb_sd: i32, type: types.Packet_Side_Data_Type) -> ^types.Packet_Side_Data ---
-    packet_side_data_remove :: proc(psd: [^]types.Packet_Side_Data, pnb_sd: i32, type: types.Packet_Side_Data_Type) ---
-    packet_side_data_free :: proc(psd: ^[^]types.Packet_Side_Data, pnb_sd: i32) ---
+    packet_side_data_new :: proc(psd: ^[^]types.AVPacketSideData, pnb_sd: i32, type: types.Packet_Side_Data_Type, size: uintptr, flags: i32) -> ^types.AVPacketSideData ---
+    packet_side_data_add :: proc(psd: ^[^]types.AVPacketSideData, pnb_sd: i32, type: types.Packet_Side_Data_Type, data: rawptr, size: uintptr, flags: i32) -> ^types.AVPacketSideData ---
+    packet_side_data_get :: proc(psd: [^]types.AVPacketSideData, pnb_sd: i32, type: types.Packet_Side_Data_Type) -> ^types.AVPacketSideData ---
+    packet_side_data_remove :: proc(psd: [^]types.AVPacketSideData, pnb_sd: i32, type: types.Packet_Side_Data_Type) ---
+    packet_side_data_free :: proc(psd: ^[^]types.AVPacketSideData, pnb_sd: i32) ---
     packet_side_data_name :: proc(type: types.Packet_Side_Data_Type) -> cstring ---
 
 
-    packet_alloc :: proc() -> ^types.Packet ---
-    packet_clone :: proc(src: ^types.Packet) -> ^types.Packet ---
-    packet_free :: proc(pkt: ^^types.Packet) ---
-    new_packet :: proc(pkt: ^types.Packet, size: i32) -> types.AVError_Int ---
-    shrink_packet :: proc(pkt: ^types.Packet, size: i32) ---
-    grow_packet :: proc(pkt: ^types.Packet, grow_by: i32) -> i32 ---
-    packet_from_data :: proc(pkt: ^types.Packet, data: [^]byte, size: i32) -> types.AVError_Int ---
-    packet_new_side_data :: proc(pkt: ^types.Packet, type: types.Packet_Side_Data_Type, size: uintptr) -> [^]byte ---
-    packet_add_side_data :: proc(pkt: ^types.Packet, type: types.Packet_Side_Data_Type, data: [^]byte, size: uintptr) -> types.AVError_Int ---
-    packet_shrink_side_data :: proc(pkt: ^types.Packet, type: types.Packet_Side_Data_Type, size: uintptr) -> types.AVError_Int ---
-    packet_get_side_data :: proc(pkt: ^types.Packet, type: types.Packet_Side_Data_Type, size: ^uintptr) -> [^]byte ---
-    packet_pack_dictionary :: proc(dict: ^types.Dictionary, size: ^uintptr) -> [^]byte ---
-    packet_unpack_dictionary :: proc(data: ^byte, size: uintptr, dict: ^^types.Dictionary) -> types.AVError_Int ---
-    packet_free_side_data :: proc(pkt: ^types.Packet) ---
-    packet_ref :: proc(dst: ^types.Packet, src: ^types.Packet) -> types.AVError_Int ---
-    packet_unref :: proc(pkt: ^types.Packet) ---
-    packet_move_ref :: proc(dst: ^types.Packet, src: ^types.Packet) ---
-    packet_copy_props :: proc(dst: ^types.Packet, src: ^types.Packet) -> types.AVError_Int ---
-    packet_make_refcounted :: proc(pkt: ^types.Packet) -> types.AVError_Int ---
-    packet_make_writable :: proc(pkt: ^types.Packet) -> types.AVError_Int ---
-    packet_rescale_ts :: proc(pkt: ^types.Packet, tb_src: types.Rational, tb_dst: types.Rational) ---
+    packet_alloc :: proc() -> ^types.AVPacket ---
+    packet_clone :: proc(src: ^types.AVPacket) -> ^types.AVPacket ---
+    packet_free :: proc(pkt: ^^types.AVPacket) ---
+    new_packet :: proc(pkt: ^types.AVPacket, size: i32) -> types.AVError_Int ---
+    shrink_packet :: proc(pkt: ^types.AVPacket, size: i32) ---
+    grow_packet :: proc(pkt: ^types.AVPacket, grow_by: i32) -> i32 ---
+    packet_from_data :: proc(pkt: ^types.AVPacket, data: [^]byte, size: i32) -> types.AVError_Int ---
+    packet_new_side_data :: proc(pkt: ^types.AVPacket, type: types.Packet_Side_Data_Type, size: uintptr) -> [^]byte ---
+    packet_add_side_data :: proc(pkt: ^types.AVPacket, type: types.Packet_Side_Data_Type, data: [^]byte, size: uintptr) -> types.AVError_Int ---
+    packet_shrink_side_data :: proc(pkt: ^types.AVPacket, type: types.Packet_Side_Data_Type, size: uintptr) -> types.AVError_Int ---
+    packet_get_side_data :: proc(pkt: ^types.AVPacket, type: types.Packet_Side_Data_Type, size: ^uintptr) -> [^]byte ---
+    packet_pack_dictionary :: proc(dict: ^types.AVDictionary, size: ^uintptr) -> [^]byte ---
+    packet_unpack_dictionary :: proc(data: ^byte, size: uintptr, dict: ^^types.AVDictionary) -> types.AVError_Int ---
+    packet_free_side_data :: proc(pkt: ^types.AVPacket) ---
+    packet_ref :: proc(dst: ^types.AVPacket, src: ^types.AVPacket) -> types.AVError_Int ---
+    packet_unref :: proc(pkt: ^types.AVPacket) ---
+    packet_move_ref :: proc(dst: ^types.AVPacket, src: ^types.AVPacket) ---
+    packet_copy_props :: proc(dst: ^types.AVPacket, src: ^types.AVPacket) -> types.AVError_Int ---
+    packet_make_refcounted :: proc(pkt: ^types.AVPacket) -> types.AVError_Int ---
+    packet_make_writable :: proc(pkt: ^types.AVPacket) -> types.AVError_Int ---
+    packet_rescale_ts :: proc(pkt: ^types.AVPacket, tb_src: types.AVRational, tb_dst: types.AVRational) ---
 }
 
 @(default_calling_convention = "c", link_prefix = "av_")
@@ -269,9 +269,9 @@ foreign avcodec {
 foreign avcodec {
     //===codec.h===
     // Iterate over all codecs
-    iterate :: proc(iter: ^rawptr) -> (codec: ^types.Codec) ---
-    is_decoder :: proc(codec: ^types.Codec) -> c.int ---
-    is_encoder :: proc(codec: ^types.Codec) -> c.int ---
+    iterate :: proc(iter: ^rawptr) -> (codec: ^types.AVCodec) ---
+    is_decoder :: proc(codec: ^types.AVCodec) -> c.int ---
+    is_encoder :: proc(codec: ^types.AVCodec) -> c.int ---
 
 }
 /*
